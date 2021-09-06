@@ -1,0 +1,77 @@
+{
+	"emulators": {
+		"default": {
+			"port": 3569,
+			"serviceAccount": "emulator-account"
+		}
+	},
+	"contracts": {
+		"FungibleToken": {
+            "source": "./contracts/dependencies/FungibleToken.cdc",
+            "aliases": {
+                "emulator": "0xee82856bf20e2aa6",
+                "testnet": "0x9a0766d93b6608b7",
+                "mainnet": "0xf233dcee88fe0abe"
+            }
+        },
+        "NonFungibleToken": {
+            "source": "./contracts/dependencies/NonFungibleToken.cdc",
+            "aliases": {
+                "testnet": "0x631e88ae7f1d7c20"
+            }
+        },
+		"FlowToken": {
+            "source": "./contracts/dependencies/FlowToken.cdc",
+            "aliases": {
+                "emulator": "0x0ae53cb6e3f42a79",
+                "testnet": "0x7e60df042a9c0868",
+                "mainnet": "0x1654653399040a61"
+            }
+        },
+		"ListenNFT": "./contracts/ListenNFT.cdc",
+		"ListenUSD": "./contracts/ListenUSD.cdc",
+		"ListenAuction": "./contracts/ListenAuction.cdc",
+		"ListenMarketplace": "./contracts/ListenMarketplace.cdc"
+	},
+	"networks": {
+		"emulator": "127.0.0.1:3569",
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
+	},
+	"accounts": {
+		"emulator-account": {
+			"address": "f8d6e0586b0a20c7",
+			"key": "fe8df2fe3a7b10252c3ad977eedf1e467a15ddec50a0ca2a4e9a3dd48ec50e74"
+		},
+		"admin-account": {
+			"address": "0x01cf0e2f2f715450",
+			"keys": "bda17f3a07e924c56f66e76a38246259f17b66c5f6233fd1db4c32ba8b1702b6",
+			"chain": "flow-emulator"
+		},
+		"user-account1": {
+			"address": "0x179b6b1cb6755e31",
+			"keys": "c3c402f4b5ac76dd16b9d60de899c01e2d3c5ae153efdd2ca7fe91ad754abd73",
+			"chain": "flow-emulator"
+		},
+		"user-account2": {
+			"address": "0xf3fcd2c1a78f5eee",
+			"keys": "c89af7e50eb5c927e66d040a93e02a7a6ffbcd950ab9d6fcbea235f9217b4836",
+			"chain": "flow-emulator"
+		},
+		"listen-admin-testnet": {
+			"address": "0x495e6236d3a6c13b",
+			"keys": "d850f0086387dc9703eeb0ca7fc0a1cb92992d3d606734a1d857e7e30bfb429d",
+			"chain": "flow-testnet"
+		}
+	},
+	"deployments": {
+		"emulator": {
+			"emulator-account": ["NonFungibleToken"],
+			"admin-account": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenMarketplace"]
+		},
+		"testnet": {
+			"listen-admin-testnet": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenMarketplace"]
+		}
+	}
+}
+ 
