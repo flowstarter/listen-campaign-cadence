@@ -21,7 +21,7 @@ pub contract ListenNFT: NonFungibleToken {
     //
     // allows access to read the metadata and ipfs pin of the nft
     pub resource interface ListenNFTPublic {
-        pub let metadata: {String:String}
+        access(contract) let metadata: {String:String}
         pub let ipfsPin: String
     } 
 
@@ -29,7 +29,7 @@ pub contract ListenNFT: NonFungibleToken {
         pub let id: UInt64
 
         // Meta data initalized on creation and unalterable
-        pub let metadata: {String: String}
+        access(contract) let metadata: {String: String}
 
         // string with ipfs pin of media data
         pub let ipfsPin: String
