@@ -21,7 +21,7 @@ pub contract ListenNFT: NonFungibleToken {
     //
     // allows access to read the metadata and ipfs pin of the nft
     pub resource interface ListenNFTPublic {
-        access(contract) let metadata: {String:String}
+        pub fun getMetadata() : {String:String}
         pub let ipfsPin: String
     } 
 
@@ -49,10 +49,18 @@ pub contract ListenNFT: NonFungibleToken {
 
 
     // Public Interface for ListenNFTs Collection to expose metadata as required.
-    // Can change this to return a structure custom rather than key value pairs  
     pub resource interface CollectionPublic {
-        pub fun getListenNFTMetadata(id: UInt64 ) : {String:String}
-        pub fun borrowListenNFT(id:UInt64) : &ListenNFT.NFT?
+        pub fun deposit(token: @NonFungibleToken.NFT)
+        pub fun getIDs(): [UInt64]
+        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+        pub fun borrowListenNFT(id:UInt64) : &ListenNFT.NFT? {
+            // If the result isn't nil, the id of the returned reference
+            // should be the same as the argument to the function
+            post {
+                (result == nil) || (result?.id == id):
+                    "Cannot borrow ListenNFT reference: The ID of the returned reference is incorrect"
+            }
+        }
     }
 
     // standard implmentation for managing a collection of NFTs
@@ -69,9 +77,7 @@ pub contract ListenNFT: NonFungibleToken {
         // withdraw removes an NFT from the collection and moves it to the caller
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
             let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
-
             emit Withdraw(id: token.id, from: self.owner?.address)
-
             return <-token
         }
 
@@ -110,10 +116,6 @@ pub contract ListenNFT: NonFungibleToken {
                 } else {
                     return nil
             }
-        }
-
-        pub fun getListenNFTMetadata(id: UInt64): {String:String} {
-            return self.borrowListenNFT(id: id)!.getMetadata()
         }
 
         destroy() {
