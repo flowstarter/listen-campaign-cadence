@@ -476,7 +476,7 @@ flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc --network=$net
     ]'
 
 cho "read token ids from collection @ 0x179b6b1cb6755e31"
-flow scripts execute ./scripts/ListenNFT/get_exits_nfts.cdc --network=testnet \
+flow scripts execute ./scripts/ListenNFT/get_collection_meta.cdc --network=testnet \
      --args-json '[
                     {
                         "type": "Address",
