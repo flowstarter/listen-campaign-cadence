@@ -31,6 +31,7 @@
 		"ListenNFT": "./contracts/ListenNFT.cdc",
 		"ListenUSD": "./contracts/ListenUSD.cdc",
 		"ListenAuction": "./contracts/ListenAuction.cdc",
+		"ListenBatchAuction": "./contracts/ListenBatchAuction.cdc",
 		"ListenMarketplace": "./contracts/ListenMarketplace.cdc"
 	},
 	"networks": {
@@ -67,10 +68,10 @@
 	"deployments": {
 		"emulator": {
 			"emulator-account": ["NonFungibleToken"],
-			"admin-account": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenMarketplace"]
+			"admin-account": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenBatchAuction", "ListenMarketplace"]
 		},
 		"testnet": {
-			"listen-admin-testnet": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenMarketplace"]
+			"listen-admin-testnet": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenBatchAuction", "ListenMarketplace"]
 		}
 	}
 }
