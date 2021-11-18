@@ -16,17 +16,17 @@ pub contract ListenAuction {
     access(contract) var nextID: UInt64                 // internal ticker for auctionIDs
     access(contract) var auctions: @{UInt64 : Auction}  // Dictionary of Auctions in existence
 
-    access(contract) let EXTENSION_TIME : UFix64        // Currently globally set for all running auctions, consider refactoring to per auction basis for flexibility
+    access(contract) var EXTENSION_TIME : UFix64        // Currently globally set for all running auctions, consider refactoring to per auction basis for flexibility
     
     pub let AdminStoragePath : StoragePath
     pub let AdminCapabilityPath : CapabilityPath
 
     pub event ContractDeployed()
     pub event AuctionCreated(auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, prizeIDs: [UInt64] )
-    pub event BidPlaced( auctionID: UInt64, amount: UFix64 )
-    pub event AuctionExtended( endTime: UFix64 )
+    pub event BidPlaced( auctionID: UInt64, bidder: Address, amount: UFix64 )
+    pub event AuctionExtended( auctionID: UInt64, endTime: UFix64 )
     pub event AuctionSettled(id: UInt64, winnersAddress: Address, finalSalePrice: UFix64)
-    pub event AuctionRemove(auctionID: UInt64)
+    pub event AuctionRemoved(auctionID: UInt64)
 
     pub resource Auction {
         access(contract) let startingPrice : UFix64
@@ -50,7 +50,6 @@ pub contract ListenAuction {
 
         access(contract) fun extendAuction() {
             self.endTime = self.endTime + ListenAuction.EXTENSION_TIME
-            emit AuctionExtended( endTime: self.endTime)
         }
 
         access(contract) fun placeBid(bid: @ListenAuction.Bid ) {
@@ -80,7 +79,7 @@ pub contract ListenAuction {
         }
 
         pub fun auctionHasStarted() : Bool {
-            return ListenAuction.now() > self.startTime
+            return ListenAuction.now() >= self.startTime
         }
         
         pub fun getAuctionState(): AuctionState {
@@ -89,7 +88,7 @@ pub contract ListenAuction {
                 return AuctionState.Upcoming
             }
 
-            if currentTime > self.endTime {
+            if currentTime >= self.endTime {
                 return AuctionState.Complete
             }
 
@@ -99,7 +98,6 @@ pub contract ListenAuction {
 
             return AuctionState.Closing
         }
- 
         destroy() {
             if self.nftCollection.getIDs().length > 0 {
                 let depositRef = ListenAuction.account.getCapability(ListenNFT.CollectionPublicPath)
@@ -117,10 +115,10 @@ pub contract ListenAuction {
     }
 
     pub struct History{
-        pub var auctionID : UInt64
-        pub var amount: UFix64
-        pub var time : UFix64
-        pub var bidderAddress : String
+        pub let auctionID : UInt64
+        pub let amount: UFix64
+        pub let time : UFix64
+        pub let bidderAddress : String
 
         init(auctionID: UInt64, amount: UFix64, time: UFix64, bidderAddress: String ) {
             self.auctionID = auctionID
@@ -170,7 +168,7 @@ pub contract ListenAuction {
         pub fun removeAuction(auctionID: UInt64) {
             let auctionRef = ListenAuction.borrowAuction(id: auctionID) ?? panic("Auction ID does not exist")
             let bidRef = &auctionRef.bid as &Bid
-            assert( bidRef.vault.balance == 0.0, message: "Auction have a bid, can't remove")
+            assert( bidRef.vault.balance == 0.0, message: "Auction still has a bid, can't remove")
             for id in auctionRef.nftCollection.getIDs() {
                 let nft <- auctionRef.nftCollection.withdraw(withdrawID: id)
                 destroy nft
@@ -179,13 +177,20 @@ pub contract ListenAuction {
             let auction <- ListenAuction.auctions.remove(key: auctionID)
             destroy auction
 
-            emit AuctionRemove(auctionID:auctionID)
+            emit AuctionRemoved(auctionID:auctionID)
+        }
+
+        pub fun updateExtensionTime(duration: UFix64) {
+            pre {
+                ListenAuction.auctions.keys.length == 0 : "Must be no active auctions to update rules"
+            }
+            ListenAuction.EXTENSION_TIME = duration
         }
 
         pub fun settleAuction( auctionID: UInt64 ) {
             let auctionRef = ListenAuction.borrowAuction(id: auctionID)!
             let bidRef = &auctionRef.bid as &Bid
-            assert( ListenAuction.now() > auctionRef.endTime, message: "Auction must be finished to settle")
+            assert( ListenAuction.now() >= auctionRef.endTime, message: "Auction must be finished to settle")
             assert( bidRef.vault.balance > 0.0, message: "Auction must have a bid")
             
             let winnerNFTcap = &bidRef.nftReceiverCap! as &Capability 
@@ -197,10 +202,6 @@ pub contract ListenAuction {
 
             let finalSalePrice = bidRef.vault.balance
             let funds <- bidRef.vault.withdraw(amount: finalSalePrice)
-            // Currently Admin account receives all funds from auction
-            // in whitepaper it states funds will be shared
-            // "15 percent of the income from the sales/auction will pay for the Listen Collectibles Auction..."
-            // possible to split that into two separate account here
             let ftReceiverCap = ListenAuction.account.getCapability(ListenUSD.ReceiverPublicPath) 
             let vaultRef = ftReceiverCap.borrow<&{FungibleToken.Receiver}>()!
             vaultRef.deposit(from: <- funds)
@@ -213,14 +214,14 @@ pub contract ListenAuction {
     }
 
     pub struct AuctionMeta {
-        pub var startTime : UFix64
-        pub var endTime: UFix64
-        pub var startingPrice : UFix64
-        pub var bidStep : UFix64
-        pub var nftIDs : [UInt64]
-        pub var currentBid: UFix64
-        pub var auctionState: String
-        pub var history: [History]
+        pub let startTime : UFix64
+        pub let endTime: UFix64
+        pub let startingPrice : UFix64
+        pub let bidStep : UFix64
+        pub let nftIDs : [UInt64]
+        pub let currentBid: UFix64
+        pub let auctionState: String
+        pub let history: [History]
 
         init( startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, nftIDs: [UInt64], currentBid: UFix64, auctionState: String, history: [History] ) {
             self.startTime = startTime
@@ -272,7 +273,7 @@ pub contract ListenAuction {
     }
 
     pub fun getAuctionMeta( auctionID: UInt64 ) : AuctionMeta {
-        let auctionRef = ListenAuction.borrowAuction( id: auctionID ) ?? panic("No Auction with that ID exits")
+        let auctionRef = ListenAuction.borrowAuction( id: auctionID ) ?? panic("No Auction with that ID exists")
         let bidRef = &auctionRef.bid as &Bid
         let vaultRef = &bidRef.vault as &FungibleToken.Vault
 
@@ -291,34 +292,7 @@ pub contract ListenAuction {
 
     }
 
-    pub fun getMetadataAuctions() : [{UInt64 : AuctionMeta}] {
-        let metadataAutions : [{UInt64: AuctionMeta}] = []
-        for auctionId in ListenAuction.auctions.keys {
-            let auction: AuctionMeta = ListenAuction.getAuctionMeta(auctionID: auctionId)
-            if auction.auctionState != ListenAuction.stateToString(AuctionState.Complete) {
-                metadataAutions.append({auctionId : auction})
-            }
-        }     
-        return metadataAutions
-    }
-
-    pub fun getMetadataAuctionsByStatus(auctionState: String) : [{UInt64 : AuctionMeta}] {
-        let metadataAutions : [{UInt64: AuctionMeta}] = []
-        for auctionId in ListenAuction.auctions.keys {
-            let auction: AuctionMeta = ListenAuction.getAuctionMeta(auctionID: auctionId)
-            if auction.auctionState ==  auctionState {
-                metadataAutions.append({auctionId : auction})
-            }
-        }     
-        return metadataAutions
-    }
-
-    pub fun getAuctions() : [UInt64] {
-        return ListenAuction.auctions.keys
-    }
-
-    // Function to place Bid
-    pub fun placeBid( auctionID: UInt64, funds: @ListenUSD.Vault, ftReceiverCap: Capability, nftReceiverCap: Capability ) {
+    pub fun placeBid( auctionID: UInt64, funds: @ListenUSD.Vault, ftReceiverCap: Capability<&{FungibleToken.Receiver}>, nftReceiverCap: Capability ) {
         let auctionRef = ListenAuction.borrowAuction(id: auctionID) ?? panic("Auction ID does not exist")
         assert( funds.balance >= auctionRef.startingPrice, message: "Bid must be above starting bid" )
         assert( ListenAuction.now() > auctionRef.startTime, message: "Auction hasn't started")
@@ -334,12 +308,11 @@ pub contract ListenAuction {
             bidRef.returnBidToOwner()
         }
         // create new bid
-        var bid <- create Bid(funds: <- funds, ftReceiverCap: ftReceiverCap, nftReceiverCap: nftReceiverCap)
+        let bid <- create Bid(funds: <- funds, ftReceiverCap: ftReceiverCap, nftReceiverCap: nftReceiverCap)
         auctionRef.placeBid( bid: <- bid)
 
-        var ownersVaultRef = ftReceiverCap.borrow<&{FungibleToken.Receiver}>()! 
-        log("owner=".concat(ownersVaultRef.owner!.address.toString()))
-        var history = History(
+        let ownersVaultRef = ftReceiverCap.borrow()! // <&{FungibleToken.Receiver}>()! 
+        let history = History(
             auctionID: auctionID,
             amount: newBidAmount,
             time: ListenAuction.now(),
@@ -350,9 +323,14 @@ pub contract ListenAuction {
         // extend auction endTime if bid is in final 30mins
         if (ListenAuction.now() > auctionRef.endTime - ListenAuction.EXTENSION_TIME ) {
             auctionRef.extendAuction()
+            emit AuctionExtended( auctionID: auctionID, endTime: auctionRef.endTime)
         }
 
-        emit BidPlaced( auctionID: auctionID, amount: newBidAmount )
+        emit BidPlaced( auctionID: auctionID, bidder: ownersVaultRef.owner?.address!, amount: newBidAmount )
+    }
+
+    pub fun getAuctionIDs(): [UInt64] {
+        return self.auctions.keys
     }
 
     init() {
