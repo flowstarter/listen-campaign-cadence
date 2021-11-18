@@ -1,6 +1,7 @@
 import NonFungibleToken from "../../contracts/dependencies/NonFungibleToken.cdc"
 import ListenNFT from "../../contracts/ListenNFT.cdc"
 
+
 // This script returns the size of an account's ListenNFT collection.
 
 pub fun main(address: Address): Int {

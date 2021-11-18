@@ -17,21 +17,20 @@ flow transactions send ./transactions/demo/mintFlowTokens.cdc
 # Deploy Project
 echo "Deploy project to emulator (as per flow.json config)"
 flow project deploy --update --network=emulator
-read -p "(Deployed) Press key to continue ..."
+read -p "(deployed) Press key to continue ..."
 
 
 # Setup ListenNFT Receiver Capabilites for accounts
 # setup account for admin-account
-flow transactions send ./transactions/ListenNFT/setup_account.cdc --signer="admin-account"
+flow transactions send ./transactions/Listen/setup_account.cdc --signer="admin-account"
 
 # setup account for user-account1
-flow transactions send ./transactions/ListenNFT/setup_account.cdc --signer="user-account1"
+flow transactions send ./transactions/Listen/setup_account.cdc --signer="user-account1"
 
 # setup account for user-account2
-flow transactions send ./transactions/ListenNFT/setup_account.cdc --signer="user-account2"
+flow transactions send ./transactions/Listen/setup_account.cdc --signer="user-account2"
 
-
-read -p "(Setup) Press key to continue ..."
+read -p "(setup-account) Press key to continue ..."
 # Mint an NFT to admin account
 flow transactions send ./transactions/ListenNFT/mint_nft.cdc --signer="admin-account" \
     --args-json '[
@@ -94,7 +93,7 @@ flow transactions send ./transactions/ListenNFT/mint_nft.cdc --signer="admin-acc
                         ]
                     },
                     {   "type": "String", 
-                        "value": "QmWPie7Mxt6Xes2e9QsJqm77cVFArqmaLRS5Gogx6cyTpR"
+                        "value": ""
                     }
                 ]' \
     --signer="admin-account" 
@@ -161,11 +160,12 @@ flow transactions send ./transactions/ListenNFT/mint_nft.cdc \
                         ]
                     },
                     {   "type": "String", 
-                        "value": "QmWPie7Mxt6Xes2e9QsJqm77cVFArqmaLRS5Gogx6cyTpR"
+                        "value": ""
                     }
                 ]' \
     --signer="admin-account" 
 
+read -p "(minted-nft) Press key to continue ..."
 # get total supply 
 echo "total supply of Listen NFTs:"
 flow scripts execute ./scripts/ListenNFT/get_supply.cdc
@@ -228,6 +228,15 @@ flow scripts execute ./scripts/ListenNFT/read_collection_ids.cdc \
                     }
                 ]'
 
+# Read exits nft for 0x179b6b1cb6755e31
+echo "read token ids from collection @ 0x179b6b1cb6755e31"
+flow scripts execute ./scripts/ListenNFT/get_exits_nfts.cdc --network=testnet \
+     --args-json '[
+                    {
+                        "type": "Address",
+                        "value": "0xab502047621a8b08"
+                    }
+                ]'
 
 # Get Metadata for specific token
 echo "getting meta data for token 0 @ 0x01cf0e2f2f715450"
@@ -255,10 +264,7 @@ flow scripts execute ./scripts/ListenNFT/get_metadata.cdc  \
                         "value": "1"
                     }
                 ]'
-
-
-
-
+read -p "(got-metadata) Press key to continue ..."
 echo "About to run ListenUSD tests  ------------------------------------------------------------------------------------"
 #read -p "Press any key to resume ..."
 
@@ -267,17 +273,17 @@ echo "About to run ListenUSD tests  --------------------------------------------
 
 # Setup ListenUSD Receiver Capabilites for accounts
 # setup account for admin-account
-flow transactions send ./transactions/ListenUSD/setup_account.cdc --signer="admin-account"
+# flow transactions send ./transactions/ListenUSD/setup_account.cdc --signer="admin-account"
 
 #read -p "Press any key to resume ..."
 
 # setup account for user-account1
-flow transactions send ./transactions/ListenUSD/setup_account.cdc --signer="user-account1"
+# flow transactions send ./transactions/ListenUSD/setup_account.cdc --signer="user-account1"
 
 #read -p "Press any key to resume ..."
 
 # setup account for user-account2
-flow transactions send ./transactions/ListenUSD/setup_account.cdc --signer="user-account2"
+# flow transactions send ./transactions/ListenUSD/setup_account.cdc --signer="user-account2"
 
 #read -p "Press any key to resume ..."
 
@@ -351,8 +357,6 @@ flow scripts execute ./scripts/ListenUSD/get_balance.cdc \
         }
     ]'
 
-
-
 echo "user1 account balance:"
 flow scripts execute ./scripts/ListenUSD/get_balance.cdc \
     --args-json '[
@@ -362,9 +366,7 @@ flow scripts execute ./scripts/ListenUSD/get_balance.cdc \
         }
     ]'
 
-
-
-
+read -p "(minted-transferred) Press key to continue ..."
 echo "Auction Tests-------------------------------------------------------------------------------------------------------------------------------------------"
 read -p "Press any key to create an auction ...20seconds..... starting 10.0   bidStep: 5"
 #transaction( startTime: UFix64, duration: UFix64, startingPrice: UFix64, bidStep: UFix64, tokenID: UInt64) { 
@@ -421,6 +423,24 @@ flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
             "value": "0"
         }
     ]'
+
+flow scripts execute ./scripts/ListenAuction/get_auctions_meta_by_status.cdc \
+    --args-json '[
+        {
+            "type": "String",
+            "value": "Complete"
+        }
+    ]'
+
+flow scripts execute ./scripts/ListenAuction/get_auctions_meta_by_status.cdc \
+    --args-json '[
+        {
+            "type": "String",
+            "value": "Open"
+        }
+    ]'
+
+read -p "(Get auction_metadata by status) Press any key to resume ..."
 
 echo "place bid of 10.0 for user 1"
 read -p "Press any key to resume ..."
@@ -479,11 +499,9 @@ flow transactions send ./transactions/ListenAuction/place_bid.cdc --signer="user
         },
         {
             "type": "UFix64",
-            "value": "15.0"
+            "value": "20.0"
         }
     ]'
-
-
 
 flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
     --args-json '[
@@ -492,6 +510,8 @@ flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
             "value": "0"
         }
     ]'
+
+read -p "(got-auction-metadata & bided) Press key to continue ..."
 
 echo "settle auction"
 read -p "Press any key to resume ..."

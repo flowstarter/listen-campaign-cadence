@@ -11,5 +11,6 @@ pub fun main(address: Address, itemID: UInt64): {String:String} {
         .borrow<&{ListenNFT.CollectionPublic}>()
         ?? panic("Could not borrow capability from public collection")
  
-    return collectionRef.borrowListenNFT(id: itemID)!.getMetadata()
+    let metadata = collectionRef.getListenNFTMetadata(id: itemID)
+    return metadata
 }

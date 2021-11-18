@@ -17,7 +17,8 @@
         "NonFungibleToken": {
             "source": "./contracts/dependencies/NonFungibleToken.cdc",
             "aliases": {
-                "testnet": "0x631e88ae7f1d7c20"
+                "testnet": "0x631e88ae7f1d7c20",
+				"mainnet": "0x1d7e57aa55817448"
             }
         },
 		"FlowToken": {
@@ -34,14 +35,88 @@
 		"ListenMarketplace": "./contracts/ListenMarketplace.cdc"
 	},
 	"networks": {
-		"emulator": "127.0.0.1:3569",
-		"mainnet": "access.mainnet.nodes.onflow.org:9000",
-		"testnet": "access.devnet.nodes.onflow.org:9000"
+		"emulator": {
+			"host": "127.0.0.1:3569",
+			"chain": "flow-emulator"
+		},
+		"mainnet": {
+			"host": "access.mainnet.nodes.onflow.org:9000",
+			"chain": "flow-mainnet"
+		},
+		  "testnet": {
+			"host": "access.devnet.nodes.onflow.org:9000",
+			"chain": "flow-testnet"
+		}
 	},
 	"accounts": {
 		"emulator-account": {
 			"address": "f8d6e0586b0a20c7",
-			"key": "fe8df2fe3a7b10252c3ad977eedf1e467a15ddec50a0ca2a4e9a3dd48ec50e74"
+			"key": "858cb926afafe6a681c130b1b471a9b67288dd10bd81a0c976f09d478c06ef7b"
+		},
+		"mainnet-account": {
+			"chain": "flow-mainnet",
+			"address": "0x8f1db26e3e684484",
+			"keys": [
+				{
+					"type": "hex",
+					"index": 3,
+					"signatureAlgorithm": "ECDSA_secp256k1",
+					"hashAlgorithm": "SHA3_256",
+					"context": {
+						"privateKey": "858cb926afafe6a681c130b1b471a9b67288dd10bd81a0c976f09d478c06ef7b"
+					}
+				}
+			]
+		},
+		"mainnet-account-02": {
+			"chain": "flow-mainnet",
+			"address": "0x231499bfe0c32c59",
+			"keys": [
+				{
+					"type": "hex",
+					"index": 1,
+					"signatureAlgorithm": "ECDSA_secp256k1",
+					"hashAlgorithm": "SHA3_256",
+					"context": {
+						"privateKey": "858cb926afafe6a681c130b1b471a9b67288dd10bd81a0c976f09d478c06ef7b"
+					}
+				}
+			]
+		},
+		"service-account": {
+			"address": "0x5cf2cee712764dd1",
+			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
+			"chain": "flow-testnet"
+		},
+		"testnet-admin": {
+			"address": "0xab502047621a8b08",
+			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
+			"chain": "flow-testnet"
+		},
+		"testnet-admin-1": {
+			"address": "0x7ee4f37a50357b84",
+			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
+			"chain": "flow-testnet"
+		},
+		"testnet-user01": {
+			"address": "0x4f37999a73e08bd7",
+			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
+			"chain": "flow-testnet"
+		},
+		"testnet-user02": {
+			"address": "0xa07a12deae9ff521",
+			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
+			"chain": "flow-testnet"
+		},
+		"testnet-user03": {
+			"address": "0x3bd2f32b18b30c19",
+			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
+			"chain": "flow-testnet"
+		},
+		"testnet-user04": {
+			"address": "0xefb78de5a551bd3b",
+			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
+			"chain": "flow-testnet"
 		},
 		"admin-account": {
 			"address": "0x01cf0e2f2f715450",
@@ -57,20 +132,18 @@
 			"address": "0xf3fcd2c1a78f5eee",
 			"keys": "c89af7e50eb5c927e66d040a93e02a7a6ffbcd950ab9d6fcbea235f9217b4836",
 			"chain": "flow-emulator"
-		},
-		"listen-admin-testnet": {
-			"address": "0x495e6236d3a6c13b",
-			"keys": "d850f0086387dc9703eeb0ca7fc0a1cb92992d3d606734a1d857e7e30bfb429d",
-			"chain": "flow-testnet"
 		}
 	},
 	"deployments": {
 		"emulator": {
 			"emulator-account": ["NonFungibleToken"],
-			"admin-account": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenMarketplace"]
+			"admin-account": ["ListenNFT", "ListenUSD", "ListenAuction"]
 		},
 		"testnet": {
-			"listen-admin-testnet": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenMarketplace"]
+        	"testnet-admin": ["ListenNFT", "ListenUSD", "ListenAuction"]
+     	},
+		"mainnet": {
+			"mainnet-account": [ "ListenUSD", "ListenNFT", "ListenAuction"]
 		}
 	}
 }

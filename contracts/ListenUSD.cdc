@@ -1,3 +1,7 @@
+/*
+    ListenUSD
+*/
+
 import FungibleToken from "./dependencies/FungibleToken.cdc"
 
 pub contract ListenUSD: FungibleToken {
@@ -167,9 +171,11 @@ pub contract ListenUSD: FungibleToken {
         // Initialize contract state.
         self.totalSupply = 0.0
 
-        // Create the one true Admin object and deposit it into the conttract account.
-        let admin <- create Administrator()
-        self.account.save(<-admin, to: self.AdminStoragePath)
+        // Create the Admin object and deposit it into the contract account.
+        let admin = self.account.borrow<&ListenUSD.Administrator>(from: self.AdminStoragePath)
+        if admin == nil {
+            self.account.save(<- create Administrator(), to: self.AdminStoragePath)
+        }
 
         // Emit an event that shows that the contract was initialized.
         emit TokensInitialized(initialSupply: self.totalSupply)

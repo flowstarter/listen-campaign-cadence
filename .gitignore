@@ -1,1 +1,6 @@
 /keys.md
+.DS_Store
+transactions/demo/revoke_key.cdc
+flow_private.json
+bash/test_mainnet.sh
+bash/marketplace_test.sh

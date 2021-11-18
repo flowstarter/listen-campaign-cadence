@@ -504,6 +504,25 @@ pub contract ListenMarketplace {
 
         self.listenRoyaltyPaymentAddress = self.account.address
 
+        // Added setup here to ensure Royalty vault exists. 
+        // Setup ListenUSD Vault for receiving royalties
+
+        let listenUSD_Vault = self.account.borrow<&ListenUSD.Vault>(from: ListenUSD.VaultStoragePath)
+
+        if listenUSD_Vault ==  nil {
+            self.account.save(<-ListenUSD.createEmptyVault(), to: ListenUSD.VaultStoragePath)
+        }
+
+        self.account.link<&{FungibleToken.Receiver}>(
+            ListenUSD.ReceiverPublicPath,
+            target: ListenUSD.VaultStoragePath
+        )
+        self.account.link<&{FungibleToken.Balance}>(
+            ListenUSD.BalancePublicPath,
+            target: ListenUSD.VaultStoragePath
+        )
+
         emit ListenMarketplaceInitialized()
     }
 }
+ 

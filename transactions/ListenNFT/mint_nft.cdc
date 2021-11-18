@@ -1,6 +1,7 @@
 import NonFungibleToken from "../../contracts/dependencies/NonFungibleToken.cdc"
 import ListenNFT from "../../contracts/ListenNFT.cdc"
 
+
 // This script uses the NFTMinter resource to mint a new NFT
 // It must be run with the account that has the minter resource
 // stored in /storage/NFTMinter
@@ -28,3 +29,4 @@ transaction(recipient: Address, metadata: {String:String}, ipfsPin: String) {
         self.minter.mintNFT(recipient: receiver, metadata: metadata, ipfsPin: ipfsPin)
     }
 }
+ 

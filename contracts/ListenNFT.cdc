@@ -1,6 +1,8 @@
-// ListenNFT NFT Contract
-//
-// Extends the NonFungibleToken standard with an ipfs pin field and metadata for each ListenNFT. 
+/*
+    ListenNFT
+    Author: Flowstarter
+    Extends the NonFungibleToken standard with an ipfs pin field and metadata for each ListenNFT. 
+*/
 
 import NonFungibleToken from "./dependencies/NonFungibleToken.cdc"
 
@@ -12,6 +14,7 @@ pub contract ListenNFT: NonFungibleToken {
     pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
+    pub event ListenNftCreated(id: UInt64, to: Address?)
 
     pub let MinterStoragePath : StoragePath 
     pub let CollectionStoragePath : StoragePath     
@@ -21,7 +24,7 @@ pub contract ListenNFT: NonFungibleToken {
     //
     // allows access to read the metadata and ipfs pin of the nft
     pub resource interface ListenNFTPublic {
-        pub fun getMetadata() : {String:String}
+        pub let metadata: {String:String}
         pub let ipfsPin: String
     } 
 
@@ -29,7 +32,7 @@ pub contract ListenNFT: NonFungibleToken {
         pub let id: UInt64
 
         // Meta data initalized on creation and unalterable
-        access(contract) let metadata: {String: String}
+        pub let metadata: {String: String}
 
         // string with ipfs pin of media data
         pub let ipfsPin: String
@@ -49,25 +52,17 @@ pub contract ListenNFT: NonFungibleToken {
 
 
     // Public Interface for ListenNFTs Collection to expose metadata as required.
+    // Can change this to return a structure custom rather than key value pairs  
     pub resource interface CollectionPublic {
-        pub fun deposit(token: @NonFungibleToken.NFT)
-        pub fun getIDs(): [UInt64]
-        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
-        pub fun borrowListenNFT(id:UInt64) : &ListenNFT.NFT? {
-            // If the result isn't nil, the id of the returned reference
-            // should be the same as the argument to the function
-            post {
-                (result == nil) || (result?.id == id):
-                    "Cannot borrow ListenNFT reference: The ID of the returned reference is incorrect"
-            }
-        }
+        pub fun getListenNFTMetadata(id: UInt64 ) : {String:String}
+        pub fun borrowListenNFT(id:UInt64) : &ListenNFT.NFT?
+        pub fun getExistsNFTs(): [{UInt64: {String:String}}]
     }
 
     // standard implmentation for managing a collection of NFTs
     pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPublic {
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field
-        // pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
 
         init () {
@@ -76,8 +71,12 @@ pub contract ListenNFT: NonFungibleToken {
 
         // withdraw removes an NFT from the collection and moves it to the caller
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
+
+            log(self.ownedNFTs.keys)
             let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
+
             emit Withdraw(id: token.id, from: self.owner?.address)
+
             return <-token
         }
 
@@ -101,6 +100,21 @@ pub contract ListenNFT: NonFungibleToken {
             return self.ownedNFTs.keys
         }
 
+        pub fun getExistsNFTs(): [{UInt64: {String:String}}] {
+            let listNFTs : [{UInt64: {String:String}}] = []
+            for nft in self.ownedNFTs.keys {
+                if(self.idExists(id: nft)) {
+                    var nftItem: {String:String} = self.getListenNFTMetadata(id: nft)
+                    listNFTs.append({nft : nftItem})
+                }
+            }
+            return listNFTs  
+        }
+
+        pub fun idExists(id: UInt64): Bool {
+            return self.ownedNFTs[id] != nil
+        }
+
         // borrowNFT gets a reference to an NFT in the collection
         // so that the caller can read its metadata and call its methods
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
@@ -117,6 +131,18 @@ pub contract ListenNFT: NonFungibleToken {
                     return nil
             }
         }
+
+        pub fun getListenNFTMetadata(id: UInt64): {String:String} {
+            let listenNFT = self.borrowListenNFT(id: id)
+            if listenNFT == nil {
+                return {}
+            }
+            return listenNFT!.getMetadata()
+        }
+
+        // pub fun setListenNFTMetadata(id: UInt64, metadata: {String: String}): {String: String} {
+        //     return self.borrowListenNFT(id: id)!.setMetadata(metadata: metadata)
+        // }
 
         destroy() {
             destroy self.ownedNFTs
@@ -137,13 +163,16 @@ pub contract ListenNFT: NonFungibleToken {
         // and deposit it in the recipients collection using their collection reference
         pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic}, metadata: {String: String}, ipfsPin: String) {
 
+            let initID = ListenNFT.totalSupply
             // create a new NFT
-            var newNFT <- create NFT(initID: ListenNFT.totalSupply, metadata: metadata, ipfsPin: ipfsPin)
+            var newNFT <- create NFT(initID: initID, metadata: metadata, ipfsPin: ipfsPin)
 
             // deposit it in the recipient's account using their reference
             recipient.deposit(token: <-newNFT)
 
             ListenNFT.totalSupply = ListenNFT.totalSupply + (1 as UInt64)
+
+            emit ListenNftCreated(id: initID, to: self.owner?.address)
         }
     }
 
@@ -157,8 +186,10 @@ pub contract ListenNFT: NonFungibleToken {
         self.CollectionPublicPath = /public/ListenNFTCollection
 
         // Create a Collection resource and save it to storage
-        let collection <- create Collection()
-        self.account.save(<-collection, to: ListenNFT.CollectionStoragePath)
+        //let collection <- create Collection()
+        let collection <- self.account.load<@ListenNFT.Collection>(from: self.CollectionStoragePath)
+        destroy collection
+        self.account.save(<- create Collection(), to: ListenNFT.CollectionStoragePath)
 
         // create a public capability for the collection
         self.account.link<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>(
@@ -167,9 +198,10 @@ pub contract ListenNFT: NonFungibleToken {
         )
 
         // Create a Minter resource and save it to storage
-        let minter <- create NFTMinter()
-
-        self.account.save(<-minter, to: ListenNFT.MinterStoragePath)
+        let minter <- self.account.load<@ListenNFT.NFTMinter>(from: self.MinterStoragePath)
+        destroy minter
+        self.account.save(<-create NFTMinter(), to: ListenNFT.MinterStoragePath)
+        
 
         emit ContractInitialized()
     }
