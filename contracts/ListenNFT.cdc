@@ -24,7 +24,7 @@ pub contract ListenNFT: NonFungibleToken {
     //
     // allows access to read the metadata and ipfs pin of the nft
     pub resource interface ListenNFTPublic {
-        pub let metadata: {String:String}
+        pub fun getMetadata(): {String:String}
         pub let ipfsPin: String
     } 
 
@@ -32,7 +32,7 @@ pub contract ListenNFT: NonFungibleToken {
         pub let id: UInt64
 
         // Meta data initalized on creation and unalterable
-        pub let metadata: {String: String}
+        access(contract) let metadata: {String: String}
 
         // string with ipfs pin of media data
         pub let ipfsPin: String
@@ -56,7 +56,6 @@ pub contract ListenNFT: NonFungibleToken {
     pub resource interface CollectionPublic {
         pub fun getListenNFTMetadata(id: UInt64 ) : {String:String}
         pub fun borrowListenNFT(id:UInt64) : &ListenNFT.NFT?
-        pub fun getExistsNFTs(): [{UInt64: {String:String}}]
     }
 
     // standard implmentation for managing a collection of NFTs
@@ -99,22 +98,6 @@ pub contract ListenNFT: NonFungibleToken {
         pub fun getIDs(): [UInt64] {
             return self.ownedNFTs.keys
         }
-
-        pub fun getExistsNFTs(): [{UInt64: {String:String}}] {
-            let listNFTs : [{UInt64: {String:String}}] = []
-            for nft in self.ownedNFTs.keys {
-                if(self.idExists(id: nft)) {
-                    var nftItem: {String:String} = self.getListenNFTMetadata(id: nft)
-                    listNFTs.append({nft : nftItem})
-                }
-            }
-            return listNFTs  
-        }
-
-        pub fun idExists(id: UInt64): Bool {
-            return self.ownedNFTs[id] != nil
-        }
-
         // borrowNFT gets a reference to an NFT in the collection
         // so that the caller can read its metadata and call its methods
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
