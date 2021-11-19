@@ -214,9 +214,9 @@ echo "Test P2P Marketplace"
 read -p "Press any key to setup accounts ..."
 
 echo "setup_account.cdc"
-flow transactions send ./transactions/ListenMarketplace/setup_account.cdc --signer="admin-account"
-flow transactions send ./transactions/ListenMarketplace/setup_account.cdc --signer="user-account1"
-flow transactions send ./transactions/ListenMarketplace/setup_account.cdc --signer="user-account2"
+flow transactions send ./transactions/Listen/setup.cdc --signer="admin-account"
+flow transactions send ./transactions/Listen/setup.cdc --signer="user-account1"
+flow transactions send ./transactions/Listen/setup.cdc --signer="user-account2"
  
 
 echo "About to run: create_listing.cdc"

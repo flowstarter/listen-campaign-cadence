@@ -283,7 +283,7 @@ pub contract ListenAuction {
 
         var history: [History] = auctionRef.getHistory()
         return AuctionMeta( 
-                            auctionID: auctionID
+                            auctionID: auctionID,
                             startTime: auctionRef.startTime, 
                             endTime: auctionRef.endTime, 
                             startingPrice: auctionRef.startingPrice, 

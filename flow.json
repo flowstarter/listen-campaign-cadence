@@ -137,13 +137,13 @@
 	"deployments": {
 		"emulator": {
 			"emulator-account": ["NonFungibleToken"],
-			"admin-account": ["ListenNFT", "ListenUSD", "ListenAuction"]
+			"admin-account": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenMarketplace"]
 		},
 		"testnet": {
-        	"testnet-admin": ["ListenNFT", "ListenUSD", "ListenAuction"]
+        	"testnet-admin": ["ListenNFT", "ListenUSD", "ListenAuction", "ListenMarketplace"]
      	},
 		"mainnet": {
-			"mainnet-account": [ "ListenUSD", "ListenNFT", "ListenAuction"]
+			"mainnet-account": [ "ListenUSD", "ListenNFT", "ListenAuction", "ListenMarketplace"]
 		}
 	}
 }
