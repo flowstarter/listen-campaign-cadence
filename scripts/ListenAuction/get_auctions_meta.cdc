@@ -1,5 +1,5 @@
 import ListenAuction from "../../contracts/ListenAuction.cdc"
 
-pub fun main(): [{UInt64:ListenAuction.AuctionMeta}] {
-    return ListenAuction.getMetadataAuctions()
+pub fun main(): [ListenAuction.AuctionMeta] {
+    return ListenAuction.getMetadata_Auctions()
 }
