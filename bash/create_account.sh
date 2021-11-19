@@ -4,7 +4,7 @@ service=service-account
 admin=testnet-admin
 user1=testnet-user01
 user2=testnet-user02
-network=mainet
+network=testnet
 
 for i in {1..10}
 do
@@ -26,8 +26,8 @@ do
     # echo "Total time: $time_block"
     # echo "\n-------------------------------------"
 
-    flow accounts create --key='c3f6c1f0b092aacc9a952a0d986244e78ffd394c5880f9ac2c604c2ef5cd1e0c2038a754d3ce97b915ae53522c6e759a1907ca6b821cad476e4abd51370d9a05' \
-        --signer=$admin --network=$mainet >> output.txt
+    # flow accounts create --key='c3f6c1f0b092aacc9a952a0d986244e78ffd394c5880f9ac2c604c2ef5cd1e0c2038a754d3ce97b915ae53522c6e759a1907ca6b821cad476e4abd51370d9a05' \
+    #     --signer=$admin --network=$mainet >> output.txt
     # output1="$(grep Address output.txt)"
     # admin_address="${output1:9}"
     # echo "Admin: $admin_address"

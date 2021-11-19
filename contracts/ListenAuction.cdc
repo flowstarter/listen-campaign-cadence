@@ -213,7 +213,6 @@ pub contract ListenAuction {
     }
 
     pub struct AuctionMeta {
-        pub var auctionID: UInt64
         pub var startTime : UFix64
         pub var endTime: UFix64
         pub var startingPrice : UFix64
@@ -223,8 +222,7 @@ pub contract ListenAuction {
         pub var auctionState: String
         pub var history: [History]
 
-        init(auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, nftIDs: [UInt64], currentBid: UFix64, auctionState: String, history: [History] ) {
-            self.auctionID = auctionID
+        init( startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, nftIDs: [UInt64], currentBid: UFix64, auctionState: String, history: [History] ) {
             self.startTime = startTime
             self.endTime = endTime
             self.startingPrice = startingPrice
@@ -281,8 +279,7 @@ pub contract ListenAuction {
         let auctionState = ListenAuction.stateToString(auctionRef.getAuctionState())
 
         var history: [History] = auctionRef.getHistory()
-        return AuctionMeta( auctionID: auctionID,
-                            startTime: auctionRef.startTime, 
+        return AuctionMeta( startTime: auctionRef.startTime, 
                             endTime: auctionRef.endTime, 
                             startingPrice: auctionRef.startingPrice, 
                             bidStep: auctionRef.bidStep,
@@ -294,23 +291,23 @@ pub contract ListenAuction {
 
     }
 
-    pub fun getMetadata_Auctions() : [AuctionMeta] {
-        let metadataAutions : [AuctionMeta] = []
+    pub fun getMetadataAuctions() : [{UInt64 : AuctionMeta}] {
+        let metadataAutions : [{UInt64: AuctionMeta}] = []
         for auctionId in ListenAuction.auctions.keys {
             let auction: AuctionMeta = ListenAuction.getAuctionMeta(auctionID: auctionId)
             if auction.auctionState != ListenAuction.stateToString(AuctionState.Complete) {
-                metadataAutions.append(auction)
+                metadataAutions.append({auctionId : auction})
             }
         }     
         return metadataAutions
     }
 
-    pub fun getMetadataAuctionsByStatus(auctionState: String) : [AuctionMeta] {
-        let metadataAutions : [AuctionMeta] = []
+    pub fun getMetadataAuctionsByStatus(auctionState: String) : [{UInt64 : AuctionMeta}] {
+        let metadataAutions : [{UInt64: AuctionMeta}] = []
         for auctionId in ListenAuction.auctions.keys {
             let auction: AuctionMeta = ListenAuction.getAuctionMeta(auctionID: auctionId)
             if auction.auctionState ==  auctionState {
-                metadataAutions.append(auction)
+                metadataAutions.append({auctionId : auction})
             }
         }     
         return metadataAutions
@@ -341,6 +338,7 @@ pub contract ListenAuction {
         auctionRef.placeBid( bid: <- bid)
 
         var ownersVaultRef = ftReceiverCap.borrow<&{FungibleToken.Receiver}>()! 
+        log("owner=".concat(ownersVaultRef.owner!.address.toString()))
         var history = History(
             auctionID: auctionID,
             amount: newBidAmount,

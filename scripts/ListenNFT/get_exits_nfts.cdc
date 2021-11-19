@@ -3,7 +3,7 @@ import ListenNFT from "../../contracts/ListenNFT.cdc"
 
 // This transaction returns an array of all the nft ids in the collection
 
-pub fun main(address: Address): [{String:String}] {
+pub fun main(address: Address): [{UInt64: {String:String}}] {
 
     let collectionRef = getAccount(address)
         .getCapability(ListenNFT.CollectionPublicPath)

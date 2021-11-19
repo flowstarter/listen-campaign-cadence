@@ -56,7 +56,7 @@ pub contract ListenNFT: NonFungibleToken {
     pub resource interface CollectionPublic {
         pub fun getListenNFTMetadata(id: UInt64 ) : {String:String}
         pub fun borrowListenNFT(id:UInt64) : &ListenNFT.NFT?
-        pub fun getExistsNFTs(): [{String:String}]
+        pub fun getExistsNFTs(): [{UInt64: {String:String}}]
     }
 
     // standard implmentation for managing a collection of NFTs
@@ -100,13 +100,12 @@ pub contract ListenNFT: NonFungibleToken {
             return self.ownedNFTs.keys
         }
 
-        pub fun getExistsNFTs(): [{String:String}] {
-            let listNFTs : [{String:String}] = []
+        pub fun getExistsNFTs(): [{UInt64: {String:String}}] {
+            let listNFTs : [{UInt64: {String:String}}] = []
             for nft in self.ownedNFTs.keys {
                 if(self.idExists(id: nft)) {
                     var nftItem: {String:String} = self.getListenNFTMetadata(id: nft)
-                    nftItem.insert(key: "nftId", nft.toString())
-                    listNFTs.append(nftItem)
+                    listNFTs.append({nft : nftItem})
                 }
             }
             return listNFTs  
