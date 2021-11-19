@@ -4,7 +4,7 @@ import ListenUSD from "../../contracts/ListenUSD.cdc"
 import ListenNFT from "../../contracts/ListenNFT.cdc"
 import ListenMarketplace from "../../contracts/ListenMarketplace.cdc"
 
-// Transaction to setup all required resources for Listen Auction + Marketplace
+// Transaction to setup all required resources for ListenUSD & Listen Auction & Marketplace
 
 transaction {
 
