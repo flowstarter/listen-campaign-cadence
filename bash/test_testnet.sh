@@ -12,7 +12,7 @@ network=testnet
 
 # Deploy Project
 echo "Deploy project to testnet (as per flow.json config)"
-# flow project deploy --update --network=$network
+flow project deploy --update --network=$network
 read -p "(Deployed) Press key to continue ..."
 
 # # Setup ListenNFT Receiver Capabilites for accounts
@@ -410,7 +410,7 @@ flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=
         },
         {
             "type": "UFix64",
-            "value": "10.0"
+            "value": "3600.0"
         },
         {
             "type": "UFix64",
@@ -444,7 +444,7 @@ flow transactions send ./transactions/ListenAuction/place_bid.cdc --signer=$user
         }
     ]'
 
-flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc --network=$network \
+flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc --network=testnet \
     --args-json '[
         {
             "type": "UInt64",
