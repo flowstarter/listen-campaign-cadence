@@ -214,6 +214,7 @@ pub contract ListenAuction {
     }
 
     pub struct AuctionMeta {
+        pub let auctionID: UInt64
         pub let startTime : UFix64
         pub let endTime: UFix64
         pub let startingPrice : UFix64
@@ -223,7 +224,8 @@ pub contract ListenAuction {
         pub let auctionState: String
         pub let history: [History]
 
-        init( startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, nftIDs: [UInt64], currentBid: UFix64, auctionState: String, history: [History] ) {
+        init( auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, nftIDs: [UInt64], currentBid: UFix64, auctionState: String, history: [History] ) {
+            self.auctionID = auctionID
             self.startTime = startTime
             self.endTime = endTime
             self.startingPrice = startingPrice
@@ -280,7 +282,9 @@ pub contract ListenAuction {
         let auctionState = ListenAuction.stateToString(auctionRef.getAuctionState())
 
         var history: [History] = auctionRef.getHistory()
-        return AuctionMeta( startTime: auctionRef.startTime, 
+        return AuctionMeta( 
+                            auctionID: auctionID
+                            startTime: auctionRef.startTime, 
                             endTime: auctionRef.endTime, 
                             startingPrice: auctionRef.startingPrice, 
                             bidStep: auctionRef.bidStep,
