@@ -234,7 +234,7 @@ flow scripts execute ./scripts/ListenNFT/get_collection_meta.cdc \
      --args-json '[
                     {
                         "type": "Address",
-                        "value": "0xab502047621a8b08"
+                        "value": "0x99167203ce6d77ca"
                     }
                 ]'
 
