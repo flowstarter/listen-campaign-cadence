@@ -220,17 +220,21 @@ pub contract ListenAuction {
         pub let startingPrice : UFix64
         pub let bidStep : UFix64
         pub let nftIDs : [UInt64]
+        pub let nftCollection: [{String:String}]
         pub let currentBid: UFix64
         pub let auctionState: String
         pub let history: [History]
 
-        init( auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, nftIDs: [UInt64], currentBid: UFix64, auctionState: String, history: [History] ) {
+        init( auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, 
+                bidStep: UFix64, nftIDs: [UInt64], nftCollection: [{String:String}],
+                currentBid: UFix64, auctionState: String, history: [History] ) {
             self.auctionID = auctionID
             self.startTime = startTime
             self.endTime = endTime
             self.startingPrice = startingPrice
             self.bidStep = bidStep
             self.nftIDs = nftIDs
+            self.nftCollection = nftCollection
             self.currentBid = currentBid
             self.auctionState = auctionState
             self.history = history
@@ -281,19 +285,22 @@ pub contract ListenAuction {
 
         let auctionState = ListenAuction.stateToString(auctionRef.getAuctionState())
 
-        var history: [History] = auctionRef.getHistory()
+        let history: [History] = auctionRef.getHistory()
+        let nftCollection : [{String:String}] = []
+        for id in auctionRef.nftCollection.getIDs() {
+            nftCollection.append(auctionRef.nftCollection.getListenNFTMetadata(id: id))
+        }
         return AuctionMeta( 
-                            auctionID: auctionID,
-                            startTime: auctionRef.startTime, 
-                            endTime: auctionRef.endTime, 
-                            startingPrice: auctionRef.startingPrice, 
-                            bidStep: auctionRef.bidStep,
-                            nftIDs: auctionRef.nftCollection.getIDs(), 
-                            currentBid: vaultRef.balance,
-                            auctionState: auctionState,
-                            history: history
-                            )
-
+            auctionID: auctionID,
+            startTime: auctionRef.startTime, 
+            endTime: auctionRef.endTime, 
+            startingPrice: auctionRef.startingPrice, 
+            bidStep: auctionRef.bidStep,
+            nftIDs: auctionRef.nftCollection.getIDs(), 
+            nftCollection: nftCollection, 
+            currentBid: vaultRef.balance,
+            auctionState: auctionState,
+            history: history)
     }
 
     pub fun placeBid( auctionID: UInt64, funds: @ListenUSD.Vault, ftReceiverCap: Capability<&{FungibleToken.Receiver}>, nftReceiverCap: Capability ) {

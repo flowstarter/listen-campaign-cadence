@@ -98,6 +98,7 @@ pub contract ListenNFT: NonFungibleToken {
         pub fun getIDs(): [UInt64] {
             return self.ownedNFTs.keys
         }
+
         // borrowNFT gets a reference to an NFT in the collection
         // so that the caller can read its metadata and call its methods
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
@@ -108,9 +109,9 @@ pub contract ListenNFT: NonFungibleToken {
         // so the caller can read the NFT's extended information
         pub fun borrowListenNFT(id: UInt64): &ListenNFT.NFT? {
             if self.ownedNFTs[id] != nil {
-                    let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
-                    return ref as! &ListenNFT.NFT
-                } else {
+                let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
+                return ref as! &ListenNFT.NFT
+            } else {
                     return nil
             }
         }
@@ -120,7 +121,9 @@ pub contract ListenNFT: NonFungibleToken {
             if listenNFT == nil {
                 return {}
             }
-            return listenNFT!.getMetadata()
+            let nftMetadata: {String:String} = listenNFT!.getMetadata()
+            nftMetadata.insert(key: "id", id.toString())
+            return nftMetadata
         }
 
         // pub fun setListenNFTMetadata(id: UInt64, metadata: {String: String}): {String: String} {

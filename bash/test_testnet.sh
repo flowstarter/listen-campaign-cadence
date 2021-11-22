@@ -174,7 +174,7 @@ flow scripts execute ./scripts/ListenNFT/get_metadata.cdc --network=network  \
     --args-json '[
                     {
                         "type": "Address",
-                        "value": "0xab502047621a8b08"
+                        "value": "0x99167203ce6d77ca"
                     },
                     {
                         "type": "UInt64",
@@ -244,11 +244,11 @@ flow scripts execute ./scripts/ListenNFT/read_collection_ids.cdc  --network=$net
 
 # User1: Read collection ids for 0x4fc59aea0d91d6ed
 echo "User1: read token ids from collection @ 0x4fc59aea0d91d6ed"
-flow scripts execute ./scripts/ListenNFT/read_collection_ids.cdc --network=$network \
+flow scripts execute ./scripts/ListenNFT/read_collection_ids.cdc --network=testnet \
      --args-json '[
                     {
                         "type": "Address",
-                        "value": "0x4fc59aea0d91d6ed"
+                        "value": "0x99167203ce6d77ca"
                     }
                 ]'
 
