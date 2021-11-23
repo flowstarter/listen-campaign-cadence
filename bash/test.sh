@@ -228,15 +228,6 @@ flow scripts execute ./scripts/ListenNFT/read_collection_ids.cdc \
                     }
                 ]'
 
-# Read exits nft for 0x179b6b1cb6755e31
-echo "read token ids from collection @ 0x179b6b1cb6755e31"
-flow scripts execute ./scripts/ListenNFT/get_collection_meta.cdc \
-     --args-json '[
-                    {
-                        "type": "Address",
-                        "value": "0x99167203ce6d77ca"
-                    }
-                ]'
 
 # Get Metadata for specific token
 echo "getting meta data for token 0 @ 0x01cf0e2f2f715450"
