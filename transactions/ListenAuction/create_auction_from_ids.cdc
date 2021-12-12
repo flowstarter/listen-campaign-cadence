@@ -4,7 +4,7 @@ import NonFungibleToken from "../../contracts/dependencies/NonFungibleToken.cdc"
 import ListenNFT from "../../contracts/ListenNFT.cdc"
 import ListenAuction from "../../contracts/ListenAuction.cdc"
 
-transaction( startTime: UFix64, duration: UFix64, startingPrice: UFix64, bidStep: UFix64, tokenIDs: [UInt64]) {
+transaction( startTime: UFix64, duration: UFix64, startingPrice: UFix64, bidStep: UFix64, position: UInt64, tokenIDs: [UInt64]) {
 
     prepare(acct: AuthAccount) {
         // Auction starts x seconds from now...... 
@@ -20,7 +20,7 @@ transaction( startTime: UFix64, duration: UFix64, startingPrice: UFix64, bidStep
             let auctionPrizeCollection <- ListenNFT.createEmptyCollection() as! @ListenNFT.Collection
             let prizeNFT <- collectionRef.withdraw(withdrawID: id) as! @ListenNFT.NFT // as! @NonFungibleToken.NFT
             auctionPrizeCollection.deposit(token: <- prizeNFT)
-            admin.createAuction( startTime: startAt, duration: duration, startingPrice: startingPrice, bidStep: bidStep, nftCollection: <- auctionPrizeCollection )
+            admin.createAuction( startTime: startAt, duration: duration, startingPrice: startingPrice, bidStep: bidStep, position:position, nftCollection: <- auctionPrizeCollection )
         }
     }
 }

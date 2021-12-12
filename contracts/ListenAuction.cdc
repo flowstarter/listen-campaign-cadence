@@ -22,7 +22,7 @@ pub contract ListenAuction {
     pub let AdminCapabilityPath : CapabilityPath
 
     pub event ContractDeployed()
-    pub event AuctionCreated(auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, prizeIDs: [UInt64] )
+    pub event AuctionCreated(auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, position: UInt64, prizeIDs: [UInt64] )
     pub event BidPlaced( auctionID: UInt64, bidder: Address, amount: UFix64 )
     pub event AuctionExtended( auctionID: UInt64, endTime: UFix64 )
     pub event AuctionSettled(id: UInt64, winnersAddress: Address, finalSalePrice: UFix64)
@@ -36,15 +36,17 @@ pub contract ListenAuction {
         access(contract) var nftCollection : @ListenNFT.Collection 
         access(contract) var endTime : UFix64       // variable as can be extended if there is a bid in last 30min
         access(contract) var bid : @Bid     
+        access(contract) var position: UInt64
         access(contract) var history : [History]
         
-        init( startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, nftCollection: @ListenNFT.Collection) {
+        init( startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, position: UInt64, nftCollection: @ListenNFT.Collection) {
             self.startTime = startTime
             self.endTime = endTime
             self.startingPrice = startingPrice
             self.bidStep = bidStep
             self.nftCollection <- nftCollection
             self.bid <- create Bid(funds: <- ListenUSD.createEmptyVault(), ftReceiverCap: nil, nftReceiverCap: nil)
+            self.position = position
             self.history = []
         }
 
@@ -98,10 +100,11 @@ pub contract ListenAuction {
 
             return AuctionState.Closing
         }
+
         destroy() {
             if self.nftCollection.getIDs().length > 0 {
                 let depositRef = ListenAuction.account.getCapability(ListenNFT.CollectionPublicPath)
-                    .borrow<&{NonFungibleToken.CollectionPublic}>()
+                    .borrow<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>()
                     ?? panic("Could not borrow a reference to accounts's collection") // possible safer alternative would be to store in contract 
                 
                 for id in self.nftCollection.getIDs() {
@@ -130,10 +133,10 @@ pub contract ListenAuction {
 
     pub resource Bid {
         pub var vault: @ListenUSD.Vault
-        pub var ftReceiverCap: Capability?
-        pub var nftReceiverCap: Capability?
+        pub var ftReceiverCap: Capability<&{FungibleToken.Receiver}>?
+        pub var nftReceiverCap:Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>?
 
-        init( funds: @ListenUSD.Vault, ftReceiverCap: Capability?, nftReceiverCap: Capability?) {
+        init( funds: @ListenUSD.Vault, ftReceiverCap: Capability<&{FungibleToken.Receiver}>?, nftReceiverCap: Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>?) {
             self.vault <- funds
             self.ftReceiverCap =  ftReceiverCap
             self.nftReceiverCap = nftReceiverCap
@@ -141,7 +144,7 @@ pub contract ListenAuction {
 
         access(contract) fun returnBidToOwner() {
             let ftReceiverCap = self.ftReceiverCap!
-            var ownersVaultRef = ftReceiverCap.borrow<&{FungibleToken.Receiver}>()! 
+            var ownersVaultRef = ftReceiverCap.borrow()! 
             let funds <- self.vault.withdraw(amount: self.vault.balance)
             ownersVaultRef.deposit( from: <- funds )
         }
@@ -155,9 +158,9 @@ pub contract ListenAuction {
     }
 
     pub resource Admin {
-        pub fun createAuction(startTime: UFix64, duration: UFix64, startingPrice: UFix64, bidStep: UFix64, nftCollection: @ListenNFT.Collection) {
-            var auction <- create Auction(startTime: startTime, endTime: startTime + duration, startingPrice: startingPrice, bidStep: bidStep, nftCollection: <- nftCollection)
-            emit AuctionCreated(auctionID: ListenAuction.nextID, startTime: auction.startTime, endTime: auction.endTime, startingPrice: auction.startingPrice, bidStep: auction.bidStep, prizeIDs: auction.nftCollection.getIDs() )
+        pub fun createAuction(startTime: UFix64, duration: UFix64, startingPrice: UFix64, bidStep: UFix64, position: UInt64, nftCollection: @ListenNFT.Collection) {
+            var auction <- create Auction(startTime: startTime, endTime: startTime + duration, startingPrice: startingPrice, bidStep: bidStep, position:position, nftCollection: <- nftCollection)
+            emit AuctionCreated(auctionID: ListenAuction.nextID, startTime: auction.startTime, endTime: auction.endTime, startingPrice: auction.startingPrice, bidStep: auction.bidStep, position:position, prizeIDs: auction.nftCollection.getIDs() )
             
             let temp <- ListenAuction.auctions.insert(key: ListenAuction.nextID, <- auction)
             destroy temp
@@ -171,7 +174,9 @@ pub contract ListenAuction {
             assert( bidRef.vault.balance == 0.0, message: "Auction still has a bid, can't remove")
             for id in auctionRef.nftCollection.getIDs() {
                 let nft <- auctionRef.nftCollection.withdraw(withdrawID: id)
-                destroy nft
+                let adminReceiver = ListenAuction.account.getCapability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>(ListenNFT.CollectionPublicPath)
+                let receiverRef = adminReceiver!.borrow()!
+                receiverRef.deposit(token: <- nft)
             }
 
             let auction <- ListenAuction.auctions.remove(key: auctionID)
@@ -193,8 +198,24 @@ pub contract ListenAuction {
             assert( ListenAuction.now() >= auctionRef.endTime, message: "Auction must be finished to settle")
             assert( bidRef.vault.balance > 0.0, message: "Auction must have a bid")
             
-            let winnerNFTcap = &bidRef.nftReceiverCap! as &Capability 
-            let winnersReceiverRef = winnerNFTcap.borrow<&{NonFungibleToken.CollectionPublic}>()!
+            // let winnerNFTcap = &bidRef.nftReceiverCap! as &Capability 
+            // log(winnerNFTcap)
+
+            //var winnerNFTcap = bidRef.nftReceiverCap as Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>()
+            //let winnerNFTcap = &bidRef.nftReceiverCap! as Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>?
+            let winnerNFTcap = bidRef.nftReceiverCap as Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>?
+            log(winnerNFTcap)
+            var test = winnerNFTcap!.borrow()
+            log(test)
+            let winnersReceiverRef = test!
+
+            log(winnerNFTcap)
+            // in case no bids there will
+            //let winnersReceiverRef = winnerNFTcap!.borrow()!
+
+            //.borrow<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>()
+            //let winnersReceiverRef = winnerNFTcap.borrow<&{NonFungibleToken.CollectionPublic}>()
+            log(winnersReceiverRef)
             for id in auctionRef.nftCollection.getIDs() {
                 let nft <- auctionRef.nftCollection.withdraw(withdrawID: id)
                 winnersReceiverRef.deposit(token: <- nft)
@@ -209,7 +230,7 @@ pub contract ListenAuction {
             let auction <- ListenAuction.auctions.remove(key: auctionID)
             destroy auction
 
-            emit AuctionSettled(id: auctionID, winnersAddress: winnerNFTcap.address, finalSalePrice: finalSalePrice)
+            emit AuctionSettled(id: auctionID, winnersAddress: winnerNFTcap!.address, finalSalePrice: finalSalePrice)
         }
     }
 
@@ -223,11 +244,12 @@ pub contract ListenAuction {
         pub let nftCollection: [{String:String}]
         pub let currentBid: UFix64
         pub let auctionState: String
+        pub let position: UInt64
         pub let history: [History]
 
-        init( auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, 
+        init(   auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, 
                 bidStep: UFix64, nftIDs: [UInt64], nftCollection: [{String:String}],
-                currentBid: UFix64, auctionState: String, history: [History] ) {
+                currentBid: UFix64, auctionState: String, position: UInt64, history: [History] ) {
             self.auctionID = auctionID
             self.startTime = startTime
             self.endTime = endTime
@@ -237,6 +259,7 @@ pub contract ListenAuction {
             self.nftCollection = nftCollection
             self.currentBid = currentBid
             self.auctionState = auctionState
+            self.position = position
             self.history = history
         }
     }
@@ -300,10 +323,12 @@ pub contract ListenAuction {
             nftCollection: nftCollection, 
             currentBid: vaultRef.balance,
             auctionState: auctionState,
+            position : auctionRef.position,
             history: history)
     }
 
-    pub fun placeBid( auctionID: UInt64, funds: @ListenUSD.Vault, ftReceiverCap: Capability<&{FungibleToken.Receiver}>, nftReceiverCap: Capability ) {
+    pub fun placeBid( auctionID: UInt64, funds: @ListenUSD.Vault, ftReceiverCap: Capability<&{FungibleToken.Receiver}>, 
+            nftReceiverCap: Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>) {
         let auctionRef = ListenAuction.borrowAuction(id: auctionID) ?? panic("Auction ID does not exist")
         assert( funds.balance >= auctionRef.startingPrice, message: "Bid must be above starting bid" )
         assert( ListenAuction.now() > auctionRef.startTime, message: "Auction hasn't started")

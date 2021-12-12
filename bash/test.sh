@@ -165,6 +165,73 @@ flow transactions send ./transactions/ListenNFT/mint_nft.cdc \
                 ]' \
     --signer="admin-account" 
 
+# Mint a 3nd NFT
+flow transactions send ./transactions/ListenNFT/mint_nft.cdc \
+    --args-json '[
+                    {   "type": "Address", 
+                        "value": "0x01cf0e2f2f715450"
+                    }, 
+                    {
+                        "type": "Dictionary", 
+                        "value": [
+                            { 
+                                "key": {
+                                    "type": "String",
+                                    "value": "name"
+                                }, 
+                                "value": {
+                                    "type": "String",
+                                    "value": "Listen #3"
+                                }
+                            },
+                            {
+                                "key": {
+                                    "type": "String",
+                                    "value": "description"
+                                },
+                                "value": {
+                                    "type": "String",
+                                    "value": "The very #3 Listen NFT!"
+                                }
+                            },
+                            {
+                                "key": {
+                                    "type": "String",
+                                    "value": "mediaUrl"
+                                },
+                                "value" : {
+                                    "type": "String",
+                                    "value": "https://media.listencampaign.com/nfts/second-1.png"
+                                }
+                            },
+                            {
+                                "key": {
+                                    "type": "String",
+                                    "value": "media/type"
+                                },
+                                "value": {
+                                    "type": "String",
+                                    "value": "image/png"
+                                }
+                            },
+                            {
+                                "key": {
+                                    "type": "String",
+                                    "value": "externalLink"
+                                },
+                                "value": {
+                                    "type": "String",
+                                    "value": "https://listencampaign.com/nfts/second-3"
+                                }
+                            }
+                        ]
+                    },
+                    {   "type": "String", 
+                        "value": ""
+                    }
+                ]' \
+    --signer="admin-account" 
+
 read -p "(minted-nft) Press key to continue ..."
 # get total supply 
 echo "total supply of Listen NFTs:"
@@ -234,7 +301,7 @@ flow scripts execute ./scripts/ListenNFT/get_collection_meta.cdc \
      --args-json '[
                     {
                         "type": "Address",
-                        "value": "0x99167203ce6d77ca"
+                        "value": "0x179b6b1cb6755e31"
                     }
                 ]'
 
@@ -378,7 +445,7 @@ flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=
         },
         {
             "type": "UFix64",
-            "value": "20.0"
+            "value": "5.0"
         },
         {
             "type": "UFix64",
@@ -390,9 +457,50 @@ flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=
         },
         {
             "type": "UInt64",
+            "value": "2"
+        },
+        {
+            "type": "UInt64",
             "value": "0"
         }
     ]'
+
+flow transactions send ./transactions/ListenAuction/create_auction_from_ids.cdc --signer="admin-account" \
+    --args-json '[
+        {
+            "type": "UFix64",
+            "value": "1.0"
+        },
+        {
+            "type": "UFix64",
+            "value": "5.0"
+        },
+        {
+            "type": "UFix64",
+            "value": "10.0"
+        },
+        {
+            "type": "UFix64",
+            "value": "5.0"
+        },
+        {
+            "type": "UInt64",
+            "value": "1"
+        },
+        {
+            "type": "Array",
+            "value": [
+                {
+                    "type": "UInt64",
+                    "value": "2"
+                }
+            ]
+        }
+    ]'
+
+    
+
+read -p "Press any key to resume ..."
 
 flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
     --args-json '[
@@ -429,6 +537,10 @@ flow scripts execute ./scripts/ListenAuction/get_auctions_meta_by_status.cdc \
         {
             "type": "String",
             "value": "Complete"
+        },
+        {
+            "type": "UInt64",
+            "value": "2"
         }
     ]'
 
@@ -437,6 +549,10 @@ flow scripts execute ./scripts/ListenAuction/get_auctions_meta_by_status.cdc \
         {
             "type": "String",
             "value": "Open"
+        },
+        {
+            "type": "UInt64",
+            "value": "1"
         }
     ]'
 
@@ -551,3 +667,56 @@ flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
         }
     ]'
  
+flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
+    --args-json '[
+        {
+            "type": "UInt64",
+            "value": "1"
+        }
+    ]'
+# Get Metadata for specific token
+echo "getting meta data for token #2 of 0x01cf0e2f2f715450 - before remove auction"
+flow scripts execute ./scripts/ListenNFT/get_metadata.cdc  \
+    --args-json '[
+                    {
+                        "type": "Address",
+                        "value": "0x01cf0e2f2f715450"
+                    },
+                    {
+                        "type": "UInt64",
+                        "value": "2"
+                    }
+                ]'
+
+echo "remove auction #1"
+read -p "Press any key to resume ..."
+ flow transactions send ./transactions/ListenAuction/remove_auction.cdc --signer="admin-account" \
+    --args-json '[
+        {
+            "type": "UInt64",
+            "value": "1"
+        }
+    ]'
+
+echo "check auction #1"
+flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
+    --args-json '[
+        {
+            "type": "UInt64",
+            "value": "1"
+        }
+    ]'
+
+# Get Metadata for specific token
+echo "getting meta data for token #2 of 0x01cf0e2f2f715450"
+flow scripts execute ./scripts/ListenNFT/get_metadata.cdc  \
+    --args-json '[
+                    {
+                        "type": "Address",
+                        "value": "0x01cf0e2f2f715450"
+                    },
+                    {
+                        "type": "UInt64",
+                        "value": "2"
+                    }
+                ]'

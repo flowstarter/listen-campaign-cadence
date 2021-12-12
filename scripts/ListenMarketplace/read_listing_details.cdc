@@ -4,10 +4,8 @@ import ListenMarketplace from "../../contracts/ListenMarketplace.cdc"
 
 pub fun main(account: Address, listingResourceID: UInt64): ListenMarketplace.ListingDetails {
     let ListenStorefrontRef = getAccount(account)
-        .getCapability<&ListenMarketplace.ListenStorefront{ListenMarketplace.ListenStorefrontPublic}>(
-            ListenMarketplace.ListenStorefrontPublicPath
-        )
-        .borrow()
+        .getCapability<&ListenMarketplace.ListenStorefront{ListenMarketplace.ListenStorefrontPublic}>
+        (ListenMarketplace.ListenStorefrontPublicPath).borrow()
         ?? panic("Could not borrow public ListenStorefront from address")
 
     let listing = ListenStorefrontRef.borrowListing(listingResourceID: listingResourceID)

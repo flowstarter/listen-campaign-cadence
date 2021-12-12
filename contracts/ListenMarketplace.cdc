@@ -393,7 +393,7 @@ pub contract ListenMarketplace {
                                     .getCapability<&{FungibleToken.Receiver}>(ListenUSD.ReceiverPublicPath)
             assert(royaltyReceiverCap.borrow() != nil, message: "Missing or mis-typed ListenUSD receiver (royalty account)")
             
-            // 5% royalty fee 
+            // 5% royalty fee
             let royalty = ListenMarketplace.SaleCut(
                 receiver: royaltyReceiverCap, // as Capability<&{FungibleToken.Receiver}>,
                 amount: salePrice * 0.05

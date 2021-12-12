@@ -22,7 +22,7 @@ transaction(recipient: Address, metadata: {String:String}, ipfsPin: String) {
         // Borrow the recipient's public NFT collection reference
         let receiver = getAccount(recipient)
             .getCapability(ListenNFT.CollectionPublicPath)
-            .borrow<&{NonFungibleToken.CollectionPublic}>()
+            .borrow<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>()
             ?? panic("Could not get receiver reference to the NFT Collection")
 
         // Mint the NFT and deposit it to the recipient's collection

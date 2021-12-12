@@ -12,12 +12,12 @@ network=testnet
 
 # Deploy Project
 echo "Deploy project to testnet (as per flow.json config)"
-flow project deploy --update --network=$network
+# flow project deploy --update --network=$network
 read -p "(Deployed) Press key to continue ..."
 
 # # Setup ListenNFT Receiver Capabilites for accounts
 # # setup account for admin-account
-flow transactions send ./transactions/Listen/setup_account.cdc --signer=$admin --network=$network
+# flow transactions send ./transactions/Listen/setup_account.cdc --signer=$admin --network=$network
 
 # # setup account for user-account1
 # flow transactions send ./transactions/ListenNFT/setup_account.cdc --signer=$user1 --network=$network
@@ -31,70 +31,70 @@ read -p "(Deployed) Press key to continue ..."
 
 # read -p "(Setup all account) Press key to continue ..."
 # Mint an NFT to admin account
-flow transactions send ./transactions/ListenNFT/mint_nft.cdc --network=$network --signer=$admin \
-    --args-json '[
-                    {   "type": "Address", 
-                        "value": "0x7ee4f37a50357b84"
-                    }, 
-                    {
-                        "type": "Dictionary", 
-                        "value": [
-                            { 
-                                "key": {
-                                    "type": "String",
-                                    "value": "name"
-                                }, 
-                                "value": {
-                                    "type": "String",
-                                    "value": "Listen First"
-                                }
-                            },
-                            {
-                                "key": {
-                                    "type": "String",
-                                    "value": "description"
-                                },
-                                "value": {
-                                    "type": "String",
-                                    "value": "The very first Listen NFT!"
-                                }
-                            },
-                            {
-                                "key": {
-                                    "type": "String",
-                                    "value": "mediaUrl"
-                                },
-                                "value" : {
-                                    "type": "String",
-                                    "value": "https://media.listencampaign.com/nfts/first-1.png"
-                                }
-                            },
-                            {
-                                "key": {
-                                    "type": "String",
-                                    "value": "media/type"
-                                },
-                                "value": {
-                                    "type": "String",
-                                    "value": "image/png"
-                                }
-                            },
-                            {
-                                "key": {
-                                    "type": "String",
-                                    "value": "externalLink"
-                                },
-                                "value": {
-                                    "type": "String",
-                                    "value": "https://listencampaign.com/nfts/first-1"
-                                }
-                            }
-                        ]
-                    },
-                    {   "type": "String", 
-                        "value": "QmWPie7Mxt6Xes2e9QsJqm77cVFArqmaLRS5Gogx6cyTpR"
-                    }
-                ]'
+# flow transactions send ./transactions/ListenNFT/mint_nft.cdc --network=$network --signer=$admin \
+#     --args-json '[
+#                     {   "type": "Address", 
+#                         "value": "0x668fcceabca61d39"
+#                     }, 
+#                     {
+#                         "type": "Dictionary", 
+#                         "value": [
+#                             { 
+#                                 "key": {
+#                                     "type": "String",
+#                                     "value": "name"
+#                                 }, 
+#                                 "value": {
+#                                     "type": "String",
+#                                     "value": "Listen First"
+#                                 }
+#                             },
+#                             {
+#                                 "key": {
+#                                     "type": "String",
+#                                     "value": "description"
+#                                 },
+#                                 "value": {
+#                                     "type": "String",
+#                                     "value": "The very first Listen NFT!"
+#                                 }
+#                             },
+#                             {
+#                                 "key": {
+#                                     "type": "String",
+#                                     "value": "mediaUrl"
+#                                 },
+#                                 "value" : {
+#                                     "type": "String",
+#                                     "value": "https://media.listencampaign.com/nfts/first-1.png"
+#                                 }
+#                             },
+#                             {
+#                                 "key": {
+#                                     "type": "String",
+#                                     "value": "media/type"
+#                                 },
+#                                 "value": {
+#                                     "type": "String",
+#                                     "value": "image/png"
+#                                 }
+#                             },
+#                             {
+#                                 "key": {
+#                                     "type": "String",
+#                                     "value": "externalLink"
+#                                 },
+#                                 "value": {
+#                                     "type": "String",
+#                                     "value": "https://listencampaign.com/nfts/first-1"
+#                                 }
+#                             }
+#                         ]
+#                     },
+#                     {   "type": "String", 
+#                         "value": "QmWPie7Mxt6Xes2e9QsJqm77cVFArqmaLRS5Gogx6cyTpR"
+#                     }
+#                 ]'
 
 # # Mint a 2nd NFT
 # flow transactions send ./transactions/ListenNFT/mint_nft.cdc  --network=$network --signer=$admin \
@@ -162,15 +162,96 @@ flow transactions send ./transactions/ListenNFT/mint_nft.cdc --network=$network 
 #                     }
 #                 ]'
 
-# read -p "(Minted NFTs) Press key to continue ..."
+read -p "(Minted 10k NFTs) Press key to continue ..."
+
+for i in {1..10000}
+do
+
+flow transactions send ./transactions/ListenNFT/mint_editioned_nfts.cdc --network=$network --signer=$admin --gas-limit=9999 \
+    --args-json '[
+                    {   "type": "Address", 
+                        "value": "0x668fcceabca61d39"
+                    }, 
+                    {
+                        "type": "Dictionary", 
+                        "value": [
+                            { 
+                                "key": {
+                                    "type": "String",
+                                    "value": "name"
+                                }, 
+                                "value": {
+                                    "type": "String",
+                                    "value": "Listen First"
+                                }
+                            },
+                            {
+                                "key": {
+                                    "type": "String",
+                                    "value": "description"
+                                },
+                                "value": {
+                                    "type": "String",
+                                    "value": "The very first Listen NFT!"
+                                }
+                            },
+                            {
+                                "key": {
+                                    "type": "String",
+                                    "value": "mediaUrl"
+                                },
+                                "value" : {
+                                    "type": "String",
+                                    "value": "https://amplify-auctionshopfe-dev-41027-deployment.s3-ap-southeast-1.amazonaws.com/img-auction/ITM_04_EyeFace_Anim_07_2160.mp4"
+                                }
+                            },
+                            {
+                                "key": {
+                                    "type": "String",
+                                    "value": "media/type"
+                                },
+                                "value": {
+                                    "type": "String",
+                                    "value": "image/png"
+                                }
+                            },
+                            {
+                                "key": {
+                                    "type": "String",
+                                    "value": "externalLink"
+                                },
+                                "value": {
+                                    "type": "String",
+                                    "value": "https://amplify-auctionshopfe-dev-41027-deployment.s3-ap-southeast-1.amazonaws.com/img-auction/ITM_04_EyeFace_Anim_07_2160.mp4"
+                                }
+                            }
+                        ]
+                    },
+                    {   "type": "String", 
+                        "value": "123"
+                    },
+                    {   "type": "UInt64", 
+                        "value": "1"
+                    },
+                    {   "type": "UInt64", 
+                        "value": "100"
+                    },
+                    {   "type": "UInt64", 
+                        "value": "100"
+                    }
+                ]'
+
+done
+
+read -p "(Minted NFTs) Press key to continue ..."
 # get total supply 
 echo "total supply of Listen NFTs:"
-flow scripts execute ./scripts/ListenNFT/get_supply.cdc --network=$network
+flow scripts execute ./scripts/ListenNFT/get_supply.cdc --network=testnet
 
 read -p "(Get Nft info) Press key to continue ..."
 # Get Metadata for specific token
 echo "getting meta data for token 0 @ 0x7ee4f37a50357b84"
-flow scripts execute ./scripts/ListenNFT/get_metadata.cdc --network=network  \
+flow scripts execute ./scripts/ListenNFT/get_metadata.cdc --network=testnet  \
     --args-json '[
                     {
                         "type": "Address",
@@ -216,7 +297,7 @@ flow scripts execute ./scripts/ListenNFT/get_collection_length.cdc --network=tes
     --args-json '[
                     {
                         "type": "Address",
-                        "value": "0xab502047621a8b08"
+                        "value": "0x4e6e8af8be47271c"
                     }
                 ]'
 
@@ -237,7 +318,7 @@ flow scripts execute ./scripts/ListenNFT/read_collection_ids.cdc  --network=$net
      --args-json '[
                     {
                         "type": "Address",
-                        "value": "0x7ee4f37a50357b84"
+                        "value": "0x4e6e8af8be47271c"
                     }
                 ]'
 
@@ -248,7 +329,7 @@ flow scripts execute ./scripts/ListenNFT/read_collection_ids.cdc --network=testn
      --args-json '[
                     {
                         "type": "Address",
-                        "value": "0x99167203ce6d77ca"
+                        "value": "0x668fcceabca61d39"
                     }
                 ]'
 
@@ -308,11 +389,11 @@ read -p "(Mint ListenUSD) Press any key to continue ..."
 # Mint Listen Tokens
 
 echo "Minting 100 tokens to admin account"
-flow transactions send ./transactions/ListenUSD/mint_tokens.cdc --signer=testnet-admin --network=testnet \
+flow transactions send ./transactions/ListenUSD/mint_tokens.cdc --signer="testnet-admin" --network=testnet \
     --args-json '[
         {
             "type": "Address",
-            "value": "0xab502047621a8b08"
+            "value": "0x57dca0884dff861c"
         },
         {
             "type": "UFix64",
@@ -371,8 +452,8 @@ echo "admin account balance:"
 flow scripts execute ./scripts/ListenUSD/get_balance.cdc --network=testnet \
     --args-json '[
         {
-            "type": "Address", 
-            "value": "0x1f4eddad5e8b7329"
+            "type": "Address",
+            "value": "0x757ab25ebc81fea3"
         }
     ]'
 
@@ -398,7 +479,7 @@ flow scripts execute ./scripts/ListenUSD/get_balance.cdc --network=$network \
 echo "Auction Tests-------------------------------------------------------------------------------------------------------------------------------------------"
 read -p "Press any key to create an auction ...20seconds..... starting 10.0   bidStep: 5"
 #transaction( startTime: UFix64, duration: UFix64, startingPrice: UFix64, bidStep: UFix64, tokenID: UInt64) { 
-flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=$admin --network=$network \
+flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer="testnet-admin" --network=testnet \
     --args-json '[
         {
             "type": "UFix64",
@@ -406,11 +487,11 @@ flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=
         },
         {
             "type": "UFix64",
-            "value": "20.0"
+            "value": "3600.0"
         },
         {
             "type": "UFix64",
-            "value": "3600.0"
+            "value": "100.0"
         },
         {
             "type": "UFix64",
@@ -418,15 +499,15 @@ flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=
         },
         {
             "type": "UInt64",
-            "value": "2"
+            "value": "19"
         }
     ]'
 
-flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc --network=$network \
+flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc --network=testnet \
     --args-json '[
         {
             "type": "UInt64",
-            "value": "0"
+            "value": "1"
         }
     ]'
 
@@ -448,7 +529,7 @@ flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc --network=test
     --args-json '[
         {
             "type": "UInt64",
-            "value": "0"
+            "value": "18"
         }
     ]'
 
@@ -480,7 +561,7 @@ flow scripts execute ./scripts/ListenNFT/get_collection_meta.cdc --network=testn
      --args-json '[
                     {
                         "type": "Address",
-                        "value": "0xab502047621a8b08"
+                        "value": "0x668fcceabca61d39"
                     }
                 ]'
 
@@ -544,11 +625,11 @@ flow transactions send ./transactions/ListenAuction/settle_auction.cdc --signer=
         }
     ]'
 
-flow transactions send ./transactions/ListenAuction/remove_auction.cdc --signer=$admin --network=$network \
+flow transactions send ./transactions/ListenAuction/remove_auction.cdc --signer="testnet-admin" --network=testnet \
     --args-json '[
         {
             "type": "UInt64",
-            "value": "0"
+            "value": "14"
         }
     ]'
 
