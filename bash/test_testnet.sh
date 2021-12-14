@@ -12,15 +12,15 @@ network=testnet
 
 # Deploy Project
 echo "Deploy project to testnet (as per flow.json config)"
-# flow project deploy --update --network=$network
+flow project deploy --update --network=$network
 read -p "(Deployed) Press key to continue ..."
 
 # # Setup ListenNFT Receiver Capabilites for accounts
 # # setup account for admin-account
-# flow transactions send ./transactions/Listen/setup_account.cdc --signer=$admin --network=$network
+flow transactions send ./transactions/Listen/setup_account.cdc --signer="testnet-admin" --network=testnet
 
 # # setup account for user-account1
-# flow transactions send ./transactions/ListenNFT/setup_account.cdc --signer=$user1 --network=$network
+flow transactions send ./transactions/Listen/setup_account.cdc --signer=testnet-user01 --network=testnet
 
 # # setup account for user-account2
 # flow transactions send ./transactions/ListenNFT/setup_account.cdc --signer=$user2 --network=$network
@@ -371,7 +371,7 @@ read -p "(Setup ListenUSD) Press any key to continue ..."
 
 # # Setup ListenUSD Receiver Capabilites for accounts
 # # setup account for admin-account
-# flow transactions send ./transactions/ListenUSD/setup_account.cdc --signer=$admin --network=$network
+flow transactions send ./transactions/ListenUSD/setup_account.cdc --signer="testnet-admin" --network=testnet
 
 # #read -p "Press any key to resume ..."
 
@@ -393,7 +393,7 @@ flow transactions send ./transactions/ListenUSD/mint_tokens.cdc --signer="testne
     --args-json '[
         {
             "type": "Address",
-            "value": "0x57dca0884dff861c"
+            "value": "0xffadee0980a56269"
         },
         {
             "type": "UFix64",
@@ -425,11 +425,11 @@ flow transactions send ./transactions/ListenUSD/transfer_tokens.cdc --signer=tes
     --args-json '[
         {
             "type": "UFix64",
-            "value": "500.0"
+            "value": "5000.0"
         },
         {
             "type": "Address",
-            "value": "0x5083429655453b33"
+            "value": "0xf97f48ae3b373708"
         }
     ]'
 
@@ -445,7 +445,7 @@ echo "Burning 20 of admins tokens"
 #     ]'
 
 echo "Total Supply:"
-flow scripts execute ./scripts/ListenUSD/get_supply.cdc --network=$network
+flow scripts execute ./scripts/ListenUSD/get_supply.cdc --network=testnet
 
 #read -p "Press any key to resume ..."
 echo "admin account balance:"

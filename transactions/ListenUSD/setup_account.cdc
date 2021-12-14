@@ -11,18 +11,18 @@ transaction {
 
         if signer.borrow<&ListenUSD.Vault>(from: ListenUSD.VaultStoragePath) == nil {
             // Create a new ListenUSD Vault and put it in storage
-            signer.save(<-ListenUSD.createEmptyVault(), to: ListenUSD.VaultStoragePath)
+            signer.save(<- ListenUSD.createEmptyVault(), to: ListenUSD.VaultStoragePath)
 
             // Create a public capability to the Vault that only exposes
             // the deposit function through the Receiver interface
-            signer.link<&{FungibleToken.Receiver}>(
+            signer.link<&ListenUSD.Vault{FungibleToken.Receiver}>(
                 ListenUSD.ReceiverPublicPath,
                 target: ListenUSD.VaultStoragePath
             )
 
             // Create a public capability to the Vault that only exposes
             // the balance field through the Balance interface
-            signer.link<&{FungibleToken.Balance}>(
+            signer.link<&ListenUSD.Vault{FungibleToken.Balance}>(
                 ListenUSD.BalancePublicPath,
                 target: ListenUSD.VaultStoragePath
             )

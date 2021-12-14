@@ -13,12 +13,12 @@ transaction {
         if signer.borrow<&ListenUSD.Vault>(from: ListenUSD.VaultStoragePath) == nil {
             signer.save(<-ListenUSD.createEmptyVault(), to: ListenUSD.VaultStoragePath)
 
-            signer.link<&{FungibleToken.Receiver}>(
+            signer.link<&ListenUSD.Vault{FungibleToken.Receiver}>(
                 ListenUSD.ReceiverPublicPath,
                 target: ListenUSD.VaultStoragePath
             )
 
-            signer.link<&{FungibleToken.Balance}>(
+            signer.link<&ListenUSD.Vault{FungibleToken.Balance}>(
                 ListenUSD.BalancePublicPath,
                 target: ListenUSD.VaultStoragePath
             )
