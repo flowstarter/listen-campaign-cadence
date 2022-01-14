@@ -41,3 +41,9 @@ ListenStorefront is based on NFTStoreFront by Rhea Myers
 - remove item
 - sell item
 - setup account
+
+## License 
+
+This is free and unencumbered software released into the public domain.
+
+For more information, please refer to <https://github.com/flowstarter/listen-campaign-cadence/blob/master/LICENSE>

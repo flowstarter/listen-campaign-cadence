@@ -50,8 +50,6 @@ pub contract ListenMarketplace {
         price: UFix64
     )
 
-
-
     // ListingCompleted
     // The listing has been resolved. It has either been purchased, or removed and destroyed.
     //
@@ -64,7 +62,6 @@ pub contract ListenMarketplace {
     // ListenStorefrontPublicPath
     // The public location for a ListenStorefront link.
     pub let ListenStorefrontPublicPath: PublicPath
-
 
     // SaleCut
     // A struct representing a recipient that must be sent a certain amount
@@ -89,7 +86,6 @@ pub contract ListenMarketplace {
             self.amount = amount
         }
     }
-
 
     // ListingDetails
     // A struct containing a Listing's data.
@@ -138,7 +134,6 @@ pub contract ListenMarketplace {
             // Store the cuts
             assert(saleCuts.length > 0, message: "Listing must have at least one payment cut recipient")
             self.saleCuts = saleCuts
-
            
             var salePrice = 0.0
 
@@ -157,7 +152,6 @@ pub contract ListenMarketplace {
             self.salePrice = salePrice
         }
     }
-
 
     // ListingPublic
     // An interface providing a useful public interface to a Listing.
@@ -179,7 +173,6 @@ pub contract ListenMarketplace {
         //
         pub fun getDetails(): ListingDetails
     }
-
 
     // Listing
     // A resource that allows an NFT to be sold for an amount of a given FungibleToken,

@@ -3,4 +3,8 @@
 transactions/demo/revoke_key.cdc
 flow_private.json
 bash/test_mainnet.sh
-bash/marketplace_test.sh
+bash/test_testnet.sh
+bash/create_account.sh
+bash/remove_contract.sh
+bash/deploy_contract.sh
+/transactions/demo

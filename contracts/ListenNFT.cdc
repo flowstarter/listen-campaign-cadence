@@ -7,7 +7,6 @@
 import NonFungibleToken from "./dependencies/NonFungibleToken.cdc"
 
 pub contract ListenNFT: NonFungibleToken {
-
     // Total number of ListenNFT's in existance
     pub var totalSupply: UInt64 
 
@@ -42,14 +41,13 @@ pub contract ListenNFT: NonFungibleToken {
             self.ipfsPin = ipfsPin
             self.metadata = metadata
         }
-
+        // return metadata of NFT
         pub fun getMetadata() : {String:String} {
             let metadata = self.metadata
             metadata.insert(key: "ipfsPin", self.ipfsPin)
             return metadata
         }
     }
-
 
     // Public Interface for ListenNFTs Collection to expose metadata as required.
     // Can change this to return a structure custom rather than key value pairs  
@@ -70,8 +68,6 @@ pub contract ListenNFT: NonFungibleToken {
 
         // withdraw removes an NFT from the collection and moves it to the caller
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
-
-            log(self.ownedNFTs.keys)
             let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
             emit Withdraw(id: token.id, from: self.owner?.address)
@@ -112,10 +108,10 @@ pub contract ListenNFT: NonFungibleToken {
                 let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
                 return ref as! &ListenNFT.NFT
             } else {
-                    return nil
+                return nil
             }
         }
-
+        // getListenNFTMetadata gets a reference to an ListenNFT with metadata from the collection
         pub fun getListenNFTMetadata(id: UInt64): {String:String} {
             let listenNFT = self.borrowListenNFT(id: id)
             if listenNFT == nil {
@@ -125,10 +121,6 @@ pub contract ListenNFT: NonFungibleToken {
             nftMetadata.insert(key: "id", id.toString())
             return nftMetadata
         }
-
-        // pub fun setListenNFTMetadata(id: UInt64, metadata: {String: String}): {String: String} {
-        //     return self.borrowListenNFT(id: id)!.setMetadata(metadata: metadata)
-        // }
 
         destroy() {
             destroy self.ownedNFTs
@@ -172,7 +164,6 @@ pub contract ListenNFT: NonFungibleToken {
         self.CollectionPublicPath = /public/ListenNFTCollection
 
         // Create a Collection resource and save it to storage
-        //let collection <- create Collection()
         let collection <- self.account.load<@ListenNFT.Collection>(from: self.CollectionStoragePath)
         destroy collection
         self.account.save(<- create Collection(), to: ListenNFT.CollectionStoragePath)
@@ -188,7 +179,6 @@ pub contract ListenNFT: NonFungibleToken {
         destroy minter
         self.account.save(<-create NFTMinter(), to: ListenNFT.MinterStoragePath)
         
-
         emit ContractInitialized()
     }
 }

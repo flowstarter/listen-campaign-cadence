@@ -89,17 +89,18 @@
 			"chain": "flow-testnet"
 		},
 		"testnet-admin": {
-			"address": "0x57dca0884dff861c",
+			"address": "0x80ee5446f615c30f",
 			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
 			"chain": "flow-testnet"
 		},
+
 		"testnet-admin-1": {
-			"address": "0x57dca0884dff861c",
+			"address": "0x7d417a0a284cd28f",
 			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
 			"chain": "flow-testnet"
 		},
 		"testnet-user01": {
-			"address": "0x91212946d4954308",
+			"address": "0x7d417a0a284cd28f",
 			"keys": "3bbd6ea8db235a62bda173a9b934aac01ef41b95a61b0fb24fa6b6050bdea3f2",
 			"chain": "flow-testnet"
 		},
