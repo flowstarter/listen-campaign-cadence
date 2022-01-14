@@ -9,7 +9,7 @@ ListenUSD is utility token for bidding in auctions.
 
 Auction and Storefront are hardcoded to use ListenNFT and ListenUSD for payments.
 
-ListenStorefront is based on NFTStoreFront by Rhea Myers
+ListenMarketplace is based on NFTStoreFront by Rhea Myers
 
 # Listen Collectibles Auction and Shop (LCAS)
 
@@ -41,7 +41,7 @@ ListenStorefront is based on NFTStoreFront by Rhea Myers
 - settle auction
 
 
-### ListenStorefront
+### ListenMarketplace
 - buy item
 - cleanup item
 - remove item
