@@ -194,7 +194,7 @@ pub contract ListenAuction {
 
         // initializer
         //
-        init( funds: @ListenUSD.Vault, ftReceiverCap: Capability<&{FungibleToken.Receiver}>?, nftReceiverCap: Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>?) {
+        init(funds: @ListenUSD.Vault, ftReceiverCap: Capability<&{FungibleToken.Receiver}>?, nftReceiverCap: Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>?) {
             self.vault <- funds
             self.ftReceiverCap =  ftReceiverCap
             self.nftReceiverCap = nftReceiverCap
@@ -246,7 +246,7 @@ pub contract ListenAuction {
         pub fun removeAuction(auctionID: UInt64) {
             let auctionRef = ListenAuction.borrowAuction(id: auctionID) ?? panic("Auction ID does not exist")
             let bidRef = &auctionRef.bid as &Bid
-            assert( bidRef.vault.balance == 0.0, message: "Auction still has a bid, can't remove")
+            assert(bidRef.vault.balance == 0.0, message: "Auction still has a bid, can't remove")
             for id in auctionRef.nftCollection.getIDs() {
                 let nft <- auctionRef.nftCollection.withdraw(withdrawID: id)
                 let adminReceiver = ListenAuction.account.getCapability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>(ListenNFT.CollectionPublicPath)
