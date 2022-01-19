@@ -36,7 +36,7 @@ pub contract ListenAuction {
 
     pub event ContractDeployed()
     pub event AuctionCreated(auctionID: UInt64, startTime: UFix64, endTime: UFix64, startingPrice: UFix64, bidStep: UFix64, position: UInt64, prizeIDs: [UInt64] )
-    pub event BidPlaced( auctionID: UInt64, bidder: Address, amount: UFix64 )
+    pub event BidPlaced(auctionID: UInt64, bidder: Address, amount: UFix64, discount: UFix64)
     pub event AuctionExtended( auctionID: UInt64, endTime: UFix64 )
     pub event AuctionSettled(id: UInt64, winnersAddress: Address, finalSalePrice: UFix64)
     pub event AuctionRemoved(auctionID: UInt64)
@@ -177,6 +177,8 @@ pub contract ListenAuction {
 
         // bidding amount of Auction
         pub let amount: UFix64
+        // discount amount of Auction
+        pub let discount: UFix64
         pub let time : UFix64
 
         // Flow wallet address of the user who places a bid
@@ -184,9 +186,10 @@ pub contract ListenAuction {
 
         // initializer
         //
-        init(auctionID: UInt64, amount: UFix64, time: UFix64, bidderAddress: String ) {
+        init(auctionID: UInt64, amount: UFix64, discount: UFix64, time: UFix64, bidderAddress: String) {
             self.auctionID = auctionID
             self.amount = amount
+            self.discount = discount
             self.time = time
             self.bidderAddress = bidderAddress
         }
@@ -442,7 +445,7 @@ pub contract ListenAuction {
     // User have to deposit amount of ListenUSD
     // That amount will be kept in the contract
     //
-    pub fun placeBid( auctionID: UInt64, funds: @ListenUSD.Vault, ftReceiverCap: Capability<&{FungibleToken.Receiver}>, 
+    pub fun placeBid(auctionID: UInt64, funds: @ListenUSD.Vault, discount: UFix64, ftReceiverCap: Capability<&{FungibleToken.Receiver}>, 
             nftReceiverCap: Capability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>) {
         let auctionRef = ListenAuction.borrowAuction(id: auctionID) ?? panic("Auction ID does not exist")
         assert(funds.balance >= auctionRef.startingPrice, message: "Bid must be above starting bid" )
@@ -466,8 +469,9 @@ pub contract ListenAuction {
         let history = History(
             auctionID: auctionID,
             amount: newBidAmount,
+            discount: discount,
             time: ListenAuction.now(),
-            bidderAddress:ownersVaultRef.owner!.address.toString(), 
+            bidderAddress:ownersVaultRef.owner!.address.toString(),
         )
         auctionRef.updateHistory(history:history)
         
@@ -477,7 +481,7 @@ pub contract ListenAuction {
             emit AuctionExtended( auctionID: auctionID, endTime: auctionRef.endTime)
         }
 
-        emit BidPlaced( auctionID: auctionID, bidder: ownersVaultRef.owner?.address!, amount: newBidAmount )
+        emit BidPlaced(auctionID: auctionID, bidder: ownersVaultRef.owner?.address!, amount: newBidAmount, discount: discount)
     }
 
     // getAuctionIDs

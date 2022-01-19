@@ -445,7 +445,7 @@ flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=
         },
         {
             "type": "UFix64",
-            "value": "50.0"
+            "value": "20.0"
         },
         {
             "type": "UFix64",
@@ -551,6 +551,10 @@ flow transactions send ./transactions/ListenAuction/place_bid.cdc --signer="user
         {
             "type": "UFix64",
             "value": "9.99"
+        },
+        {
+            "type": "UFix64",
+            "value": "1.99"
         }
     ]'
 
@@ -600,6 +604,10 @@ flow transactions send ./transactions/ListenAuction/place_bid.cdc --signer="user
         {
             "type": "UFix64",
             "value": "10.0"
+        },
+        {
+            "type": "UFix64",
+            "value": "1.99"
         }
     ]'
 
@@ -623,6 +631,10 @@ flow transactions send ./transactions/ListenAuction/place_bid.cdc --signer="user
         {
             "type": "UFix64",
             "value": "14.99"
+        },
+        {
+            "type": "UFix64",
+            "value": "3.0"
         }
     ]'
 
@@ -646,6 +658,10 @@ flow transactions send ./transactions/ListenAuction/place_bid.cdc --signer="user
         {
             "type": "UFix64",
             "value": "20.0"
+        },
+        {
+            "type": "UFix64",
+            "value": "2.5"
         }
     ]'
 
