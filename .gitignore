@@ -8,3 +8,4 @@
 /bash/remove_contract.sh
 /bash/deploy_contract.sh
 /transactions/demo
+/bash/deploy_mainnet.sh

@@ -4,7 +4,7 @@ import ListenUSD from "../../contracts/ListenUSD.cdc"
 import ListenNFT from "../../contracts/ListenNFT.cdc"
 import ListenAuction from "../../contracts/ListenAuction.cdc"
 
-transaction(auctionID: UInt64, amount: UFix64) {
+transaction(auctionID: UInt64, amount: UFix64, discount: UFix64) {
 
     // The Vault resource that holds the tokens that are being transferred
     let sentVault: @ListenUSD.Vault
@@ -27,6 +27,6 @@ transaction(auctionID: UInt64, amount: UFix64) {
     }
 
     execute {
-        ListenAuction.placeBid( auctionID: auctionID, funds: <- self.sentVault, ftReceiverCap: self.ftReceiverCap, nftReceiverCap: self.nftReceiverCap)
+        ListenAuction.placeBid( auctionID: auctionID, funds: <- self.sentVault, discount: discount, ftReceiverCap: self.ftReceiverCap, nftReceiverCap: self.nftReceiverCap)
     }
 }
