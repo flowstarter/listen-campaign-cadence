@@ -5,11 +5,11 @@
     Admin resource is required to create Auctions
  */
 
-import FungibleToken from "./dependencies/FungibleToken.cdc"
-import NonFungibleToken from "./dependencies/NonFungibleToken.cdc"
+import FungibleToken from 0xf233dcee88fe0abe
+import NonFungibleToken from 0x1d7e57aa55817448
+import ListenNFT from 0xfc354c9bb513e702
+import ListenUSD from 0xfc354c9bb513e702
 
-import ListenNFT from "./ListenNFT.cdc"
-import ListenUSD from "./ListenUSD.cdc"
 
 // ListenAuction
 //
