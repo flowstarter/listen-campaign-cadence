@@ -40,6 +40,7 @@ pub contract ListenAuction {
     pub event AuctionExtended( auctionID: UInt64, endTime: UFix64 )
     pub event AuctionSettled(id: UInt64, winnersAddress: Address, finalSalePrice: UFix64)
     pub event AuctionRemoved(auctionID: UInt64)
+    pub event AuctionPositionChanged(auctionID: UInt64)
 
     // Auction
     // A resource that allows an Auction can store an NFT with reserve price, bid step, time, ...
@@ -89,6 +90,13 @@ pub contract ListenAuction {
         //
         access(contract) fun updateHistory(history: History) {
             self.history.append(history)
+        }
+
+        // updatePosition
+        // change position an auction
+        //
+        access(contract) fun updatePosition(position: UInt64) {
+            self.position = position
         }
 
         // getHistory
@@ -208,7 +216,7 @@ pub contract ListenAuction {
             let ftReceiverCap = self.ftReceiverCap!
             var ownersVaultRef = ftReceiverCap.borrow()! 
             let funds <- self.vault.withdraw(amount: self.vault.balance)
-            ownersVaultRef.deposit( from: <- funds )
+            ownersVaultRef.deposit(from: <- funds)
         }
 
         destroy() {
@@ -246,7 +254,7 @@ pub contract ListenAuction {
         pub fun removeAuction(auctionID: UInt64) {
             let auctionRef = ListenAuction.borrowAuction(id: auctionID) ?? panic("Auction ID does not exist")
             let bidRef = &auctionRef.bid as &Bid
-            assert( bidRef.vault.balance == 0.0, message: "Auction still has a bid, can't remove")
+            assert(bidRef.vault.balance == 0.0, message: "Auction still has a bid, can't remove")
             for id in auctionRef.nftCollection.getIDs() {
                 let nft <- auctionRef.nftCollection.withdraw(withdrawID: id)
                 let adminReceiver = ListenAuction.account.getCapability<&{NonFungibleToken.CollectionPublic, ListenNFT.CollectionPublic}>(ListenNFT.CollectionPublicPath)
@@ -258,6 +266,16 @@ pub contract ListenAuction {
             destroy auction
 
             emit AuctionRemoved(auctionID:auctionID)
+        }
+
+        // updatePosition
+        // The function will update position of the auction with the input parameter is auctionId and position
+        // 
+        pub fun updatePosition(auctionID: UInt64, position: UInt64) {
+            let auctionRef = ListenAuction.borrowAuction(id: auctionID) ?? panic("Auction ID does not exist")
+            auctionRef.updatePosition(position: position)
+
+            emit AuctionPositionChanged(auctionID:auctionID)
         }
 
         // updateExtensionTime

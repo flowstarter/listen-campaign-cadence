@@ -272,7 +272,7 @@ flow scripts execute ./scripts/ListenMarketplace/read_marketplace_ids.cdc \
     --args-json '[
         {
             "type": "Address",
-            "value": "0xf3fcd2c1a78f5eee"
+            "value": "0x80ee5446f615c30f"
         }
     ]'
 

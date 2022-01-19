@@ -435,7 +435,7 @@ flow scripts execute ./scripts/ListenUSD/get_balance.cdc \
 
 read -p "(minted-transferred) Press key to continue ..."
 echo "Auction Tests-------------------------------------------------------------------------------------------------------------------------------------------"
-read -p "Press any key to create an auction ...20seconds..... starting 10.0   bidStep: 5"
+read -p "Press any key to create an auction ...50seconds..... starting 10.0   bidStep: 5"
 #transaction( startTime: UFix64, duration: UFix64, startingPrice: UFix64, bidStep: UFix64, tokenID: UInt64) { 
 flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer="admin-account" \
     --args-json '[
@@ -445,7 +445,7 @@ flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=
         },
         {
             "type": "UFix64",
-            "value": "5.0"
+            "value": "50.0"
         },
         {
             "type": "UFix64",
@@ -464,6 +464,8 @@ flow transactions send ./transactions/ListenAuction/create_auction.cdc --signer=
             "value": "0"
         }
     ]'
+
+
 
 flow transactions send ./transactions/ListenAuction/create_auction_from_ids.cdc --signer="admin-account" \
     --args-json '[
@@ -498,9 +500,37 @@ flow transactions send ./transactions/ListenAuction/create_auction_from_ids.cdc 
         }
     ]'
 
+
     
 
 read -p "Press any key to resume ..."
+echo "Read metadata of auction #0 -> position = 2"
+
+flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
+    --args-json '[
+        {
+            "type": "UInt64",
+            "value": "0"
+        }
+    ]'
+
+read -p "Press any key to resume ..."
+echo "Update position from 2 to 3"
+
+flow transactions send ./transactions/ListenAuction/update_position.cdc --signer="admin-account" \
+    --args-json '[
+        {
+            "type": "UInt64",
+            "value": "0"
+        },
+        {
+            "type": "UInt64",
+            "value": "3"
+        }
+    ]'
+
+read -p "Press any key to resume ..."
+echo "Read metadata of auction #0 -> position = 3"
 
 flow scripts execute ./scripts/ListenAuction/get_auction_meta.cdc \
     --args-json '[
